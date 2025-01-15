@@ -8,12 +8,29 @@ export type Resource = {
   type?: string
 }
 
-export type CardResource = Resource & {
+export type SectionResource = LessonResource & {
   id?: string
+  title: string
+  slug?: string
+  description?: string
+  type?: string
+}
+
+export type CardResource = Resource & {
+  type?: string
+  id?: string
+  title: string
+  slug: string
+  description: string
+  icon_url?: string
+  completed?: boolean
+  path: string
+  externalId?: number
   image: string | {src: string; alt: string}
   name: string
+  tag?: any
   subTitle?: string
-  byline: string
+  byline?: string
   resources?: CardResource[]
   related?: CardResource[]
   instructor?: any
@@ -26,14 +43,23 @@ export type LessonResource = Resource & {
   thumb_url: string
   lesson_view_url: string
   id: string | number
+  published_at: string
   tags: any[]
   lessons: any[]
+  primary_tag: any
   completed: boolean
   duration: number
   instructor: any
+  hls_url?: string
+  dash_url?: string
   collection: Resource & {lessons: any[]}
   staff_notes_url?: string
+  free_forever?: boolean
   download_url?: string
+  scrimba: {
+    url: string
+    transcript: string
+  }
 }
 
 export type VideoResource = LessonResource & {
@@ -72,6 +98,7 @@ export type Viewer = {
   email: string
   contact_id: string
   avatar_url: string
+  watch_later_bookmarks_url: string
   name: string
   is_pro: boolean
   is_instructor: boolean
@@ -82,6 +109,7 @@ export type Viewer = {
   opted_out: boolean
   purchases: any[]
   accounts: StripeAccount[]
+  memberships?: any
 }
 
 export type Question = {
@@ -112,6 +140,8 @@ export type PricingPlan = {
   name: string
   price: number
   stripe_price_id: string
+  price_discounted?: string
+  price_savings?: string
 }
 
 export type Prices = {
@@ -123,6 +153,7 @@ export type Prices = {
 export type Coupon = {
   coupon_code: string
   coupon_discount: number
+  coupon_region_restricted: boolean
   coupon_region_restricted_to: string
   coupon_region_restricted_to_name: string
   coupon_expires_at: number
@@ -148,10 +179,4 @@ export type ParityCouponMessageProps = {
   onDismiss: () => void
   isPPP?: boolean
   isLoading?: boolean
-}
-
-export type CourseData = {
-  title: string
-  collaboratorId?: string
-  topicIds: string[]
 }

@@ -1,7 +1,7 @@
-import {LessonResource} from 'types'
+import {LessonResource} from '@/types'
 import some from 'lodash/some'
 import isEmpty from 'lodash/isEmpty'
-import compactedMerge from 'utils/compacted-merge'
+import compactedMerge from '@/utils/compacted-merge'
 import invariant from 'tiny-invariant'
 
 export const mergeLessonMetadata = (
@@ -44,6 +44,10 @@ export const mergeLessonMetadata = (
    * Determine which value to take for each complex type (`collection`, `tags`,
    * and `instructor`).
    */
+  console.log('primaryCollection', primaryCollection)
+  console.log('secondaryCollection', secondaryCollection)
+  console.log('present?', collectionIsPresent(primaryCollection))
+
   const collection = collectionIsPresent(primaryCollection)
     ? primaryCollection
     : secondaryCollection
@@ -60,11 +64,8 @@ export const mergeLessonMetadata = (
 }
 
 const collectionIsPresent = (collection: {lessons: any[] | undefined}) => {
-  const {lessons, ...collectionMetadata} = collection || {}
-
-  // if there are lessons and some collectionMetadata is present, then the
-  // collection is considered present.
-  return some(lessons) && some(collectionMetadata)
+  const {lessons} = collection || {}
+  return some(lessons)
 }
 
 export const deriveDataFromBaseValues = ({path}: {path?: string}) => {

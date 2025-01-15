@@ -1,26 +1,74 @@
 import * as React from 'react'
 import groq from 'groq'
-import {sanityClient} from 'utils/sanity-client'
+import {sanityClient} from '@/utils/sanity-client'
+import {topicExtractor} from '@/utils/search/topic-extractor'
+import {first} from 'lodash'
+import {loadTag} from '@/lib/tags'
 
-function useLoadTopicData(topic: string, initialData: any) {
-  const [topicData, setData] = React.useState<any>(initialData)
-  const [isLoading, setLoading] = React.useState<boolean>(false)
+function useLoadTopicData(
+  initialTopicGraphqlData: any,
+  initialTopicSanityData: any,
+  searchState: any,
+) {
+  const [topicGraphqlData, setTopicGraphqlData] = React.useState<any>(
+    initialTopicGraphqlData,
+  )
+  const [topicSanityData, setTopicSanityData] = React.useState<any>(
+    initialTopicSanityData,
+  )
+  const [loading, setLoading] = React.useState<boolean>(false)
+
+  const selectedTopics: any = topicExtractor(searchState)
+  const newTopic =
+    selectedTopics.length === 1 ? first<string>(selectedTopics) : false
+
   React.useEffect(() => {
+    const controller = new AbortController()
+    const signal = controller.signal
+
     async function getData() {
       setLoading(true)
-      await sanityClient
-        .fetch(topicQuery, {
-          slug: topic,
-        })
-        .then((data) => {
-          setData(data)
-          setLoading(false)
-        })
-    }
-    topic && getData()
-  }, [topic])
+      try {
+        const sanityData = await sanityClient.fetch(
+          topicQuery,
+          {
+            slug: newTopic,
+          },
+          {signal},
+        )
 
-  return {isLoading, topicData}
+        if (sanityData) {
+          setTopicSanityData(sanityData)
+          setTopicGraphqlData({name: sanityData.slug})
+        }
+
+        if (!sanityData && newTopic) {
+          const graphqlData = await loadTag(newTopic)
+          setTopicSanityData(null)
+          setTopicGraphqlData(graphqlData)
+        }
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          console.error('Error fetching topic data: ', error)
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (newTopic) {
+      getData()
+    } else {
+      setTopicSanityData(null)
+      setTopicGraphqlData(null)
+    }
+
+    return () => {
+      controller.abort()
+    }
+  }, [newTopic, searchState])
+
+  return {loading, topicSanityData, topicGraphqlData}
 }
 
 export default useLoadTopicData
@@ -43,7 +91,7 @@ export const topicQuery = groq`*[_type == 'resource' && type == 'landing-page' &
         image,
         description,
         'background': images[label == 'background'][0].url,
-        'instructor': collaborators[]->[role == 'instructor'][0]{
+        'instructor': collaborators[@->.role == 'instructor'][0]->{
               'name': person->name,
               'image': person->image.url
           }
@@ -59,11 +107,12 @@ export const topicQuery = groq`*[_type == 'resource' && type == 'landing-page' &
         subTitle,
         resources[]->{
           'id': _id,
+          externalId,
           title,
           'name': type,
           path,
           image,
-          'instructor': collaborators[]->[role == 'instructor'][0]{
+          'instructor': collaborators[@->.role == 'instructor'][0]->{
               'name': person->name,
               'image': person->image.url
           }
@@ -80,13 +129,14 @@ export const topicQuery = groq`*[_type == 'resource' && type == 'landing-page' &
       resources[]{
         _type == 'reference' => @->{
           'id': _id,
+          externalId,
           title,
           'name': type,
           'description': summary,
           path,
           image,
           images,
-          'instructor': collaborators[]->[role == 'instructor'][0]{
+          'instructor': collaborators[@->.role == 'instructor'][0]->{
               'name': person->name,
               'image': person->image.url
           }
@@ -98,7 +148,8 @@ export const topicQuery = groq`*[_type == 'resource' && type == 'landing-page' &
           url,
           image,
           'name': type,
-          'instructor': collaborators[]->[role == 'instructor'][0]{
+          'description': summary,
+          'instructor': collaborators[@->.role == 'instructor'][0]->{
               'name': person->name,
               'image': person->image.url
           },
@@ -109,7 +160,7 @@ export const topicQuery = groq`*[_type == 'resource' && type == 'landing-page' &
             'description': summary,
             path,
             image,
-            'instructor': collaborators[]->[role == 'instructor'][0]{
+            'instructor': collaborators[@->.role == 'instructor'][0]->{
               'name': person->name,
               'image': person->image.url
           },

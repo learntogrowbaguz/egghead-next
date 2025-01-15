@@ -5,16 +5,22 @@ import toast from 'react-hot-toast'
 import axios from 'axios'
 import * as Yup from 'yup'
 import {FormikProps, useFormik} from 'formik'
-import {useCommerceMachine} from 'hooks/use-commerce-machine'
-import {track} from 'utils/analytics'
-import emailIsValid from 'utils/email-is-valid'
-import {useViewer} from 'context/viewer-context'
-import ParityCouponMessage from 'components/pricing/parity-coupon-message'
-import {PlanPrice} from 'components/pricing/select-plan-new/index'
-import {Coupon, StripeAccount} from 'types'
-import stripeCheckoutRedirect from 'api/stripe/stripe-checkout-redirect'
-import Countdown from 'components/pricing/countdown'
+import {useCommerceMachine} from '@/hooks/use-commerce-machine'
+import {track} from '@/utils/analytics'
+import emailIsValid from '@/utils/email-is-valid'
+import {useViewer} from '@/context/viewer-context'
+import ParityCouponMessage from '@/components/pricing/parity-coupon-message'
+import {PlanPrice} from '@/components/pricing/select-plan-new/index'
+import {Coupon, StripeAccount} from '@/types'
+import {redirectToSubscriptionCheckout} from '@/api/stripe/stripe-checkout-redirect'
+import Countdown from '@/components/pricing/countdown'
 import {fromUnixTime} from 'date-fns'
+import Join from '../join'
+import Browse from '../browse'
+import {useTheme} from 'next-themes'
+import {isMember} from '../../../../utils/is-member'
+import CreateAccount from '../create-account'
+import title from 'title'
 
 type FormikValues = {
   email: string
@@ -23,7 +29,7 @@ type FormikValues = {
 const PricingCta = () => {
   const {viewer, authToken} = useViewer()
   const {state, send, priceId, quantity, availableCoupons, currentPlan} =
-    useCommerceMachine({initialPlan: 'monthlyPrice'})
+    useCommerceMachine({initialPlan: 'annualPrice'})
 
   const formik: FormikProps<FormikValues> = useFormik<FormikValues>({
     initialValues: {
@@ -117,7 +123,7 @@ const PricingCta = () => {
         location: 'signup page',
       })
 
-      stripeCheckoutRedirect({
+      redirectToSubscriptionCheckout({
         priceId,
         email: formik.values.email,
         authToken,
@@ -147,7 +153,7 @@ const PricingCta = () => {
             appliedCoupon?.coupon_expires_at && (
               <div className="w-full max-w-xs mx-auto">
                 <Countdown
-                  label="Spring sale – Price goes up in:"
+                  label="Save 40% on Yearly Memberships Price goes up in:"
                   date={fromUnixTime(appliedCoupon.coupon_expires_at)}
                 />
               </div>
@@ -189,14 +195,16 @@ const PricingCta = () => {
         </div>
 
         <div className="flex justify-center">
-          <Link href="/pricing" passHref>
-            <a className="flex items-center py-1 mt-4 text-xs transition-all duration-200 ease-in-out group opacity-80 hover:opacity-100">
-              Pay yearly or quarterly{' '}
-              <i
-                className="transition-all duration-200 ease-in-out scale-75 gg-arrow-right group-hover:translate-x-1"
-                aria-hidden
-              />
-            </a>
+          <Link
+            href="/pricing"
+            passHref
+            className="flex items-center py-1 mt-4 text-xs transition-all duration-200 ease-in-out group opacity-80 hover:opacity-100"
+          >
+            Pay yearly or quarterly{' '}
+            <i
+              className="transition-all duration-200 ease-in-out scale-75 gg-arrow-right group-hover:translate-x-1"
+              aria-hidden
+            />
           </Link>
         </div>
       </form>
@@ -214,10 +222,43 @@ const PricingCta = () => {
   )
 }
 
-const Footer: React.FC<{topic?: string}> = ({topic}) => {
+const ProvideEmail: React.FC<React.PropsWithChildren<{topic?: string}>> = ({
+  topic,
+}) => (
+  <div>
+    <h2 className="text-xl py-12">Get Notified of New egghead Courses</h2>
+    <CreateAccount location="homepage header" />
+    <p className="max-w-sm pt-10 text-xs text-left sm:text-sm opacity-60">
+      Enter your email to create an account and start learning from more than
+      3,000 free {title(topic?.replace('_', ' ') ?? 'Full Stack')} lessons on
+      egghead.
+    </p>
+  </div>
+)
+
+const Footer: React.FC<React.PropsWithChildren<{topic?: string}>> = ({
+  topic,
+}) => {
+  const {viewer} = useViewer()
+  const userPresent = Boolean(viewer)
+  const userIsNonMember = userPresent && !isMember(viewer)
+
+  let Offer = Browse
+  //
+  // switch (true) {
+  //   case userIsNonMember:
+  //     Offer = Join
+  //     break
+  //   case userPresent:
+  //     Offer = Browse
+  //     break
+  //   default:
+  //     Offer = ProvideEmail
+  // }
+
   return (
-    <section className="container flex justify-center w-full py-12 sm:py-24">
-      <PricingCta />
+    <section className="sm:min-h-[30vh] relative w-full flex flex-col items-center justify-center sm:py-32 py-24 px-5">
+      <Offer topic={topic} />
     </section>
   )
 }

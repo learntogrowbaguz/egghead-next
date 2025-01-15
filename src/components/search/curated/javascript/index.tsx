@@ -3,15 +3,15 @@ import {NextSeo} from 'next-seo'
 import Topic from '../../components/topic'
 import javascriptPageData from './javascript-page-data'
 import {find} from 'lodash'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import ExternalTrackedLink from '../../../external-tracked-link'
 import {ThreeLevels} from '../curated-essential'
-import {VerticalResourceCollectionCard} from 'components/card/vertical-resource-collection-card'
-import {VerticalResourceCard} from 'components/card/verticle-resource-card'
+import {VerticalResourceCollectionCard} from '@/components/card/vertical-resource-collection-card'
+import {VerticalResourceCard} from '@/components/card/verticle-resource-card'
 
 const SearchJavaScript = () => {
   const location = 'javascript landing'
-  const description = `Life is too short for lonnnnnng boring videos. Learn JavaScript using the best screencast tutorial videos online.`
+  const description = `Life is too short for lonnnnnng boring videos. Learn JavaScript using the best screencast tutorial videos online led by working professionals that learn in public.`
   const title = `In-Depth Up-to-Date JavaScript Tutorials for ${new Date().getFullYear()}`
 
   const beginner: any = find(javascriptPageData, {id: 'beginner'})

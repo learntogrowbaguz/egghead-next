@@ -6,7 +6,7 @@ import {useMachine} from '@xstate/react'
 import {
   requestEmailChangeMachine,
   DoneEventObject,
-} from 'machines/request-email-change-machine'
+} from '@/machines/request-email-change-machine'
 
 const emailChangeSchema = yup.object().shape({
   email: yup.string().email().required('enter your email'),
@@ -27,9 +27,9 @@ async function requestEmailChange(newEmail: string) {
   return data
 }
 
-const RequestEmailChangeForm: React.FunctionComponent<RequestEmailChangeFormProps> = ({
-  originalEmail,
-}) => {
+const RequestEmailChangeForm: React.FunctionComponent<
+  React.PropsWithChildren<RequestEmailChangeFormProps>
+> = ({originalEmail}) => {
   const [state, send] = useMachine(requestEmailChangeMachine, {
     services: {
       requestChange: (_, event: DoneEventObject) => {
@@ -56,7 +56,7 @@ const RequestEmailChangeForm: React.FunctionComponent<RequestEmailChangeFormProp
           setFieldValue,
         } = props
         return (
-          <form onSubmit={handleSubmit}>
+          <form className="grow" onSubmit={handleSubmit}>
             <div className="flex flex-col space-y-2">
               <h2 className="text-xl pb-1 border-b border-gray-200 dark:border-gray-800">
                 Email

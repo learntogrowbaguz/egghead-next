@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 @import './icons.css';
-@import '../../node_modules/simplebar/dist/simplebar.min.css';
+@import '../../node_modules/simplebar-react/dist/simplebar.min.css';
 @import '../../node_modules/@skillrecordings/player/dist/skillrecordings-player.css';
-/* @import '../../node_modules/tippy.js/dist/tippy.css'; */
+
 
 #__next {
   @apply flex flex-col min-h-screen text-gray-900;
@@ -179,6 +179,19 @@ pre > code {
   }
 }
 
+.cueplayer-react-cue-bar:empty {
+  @apply hidden;
+}
+
 .cueplayer-react .cueplayer-react-cue-form-submit-button {
   @apply bg-blue-600;
+}
+
+mux-player {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: auto;
+  --seek-backward-button: none;
+  --seek-forward-button: none;
+  @apply overflow-hidden;
 }

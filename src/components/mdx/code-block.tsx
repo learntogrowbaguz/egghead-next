@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {FunctionComponent} from 'react'
 import {Children, ReactNode, ReactElement} from 'react'
-import {paramsFromMetastring} from 'utils/code'
+import {paramsFromMetastring} from '@/utils/code'
 import useClipboard from 'react-use-clipboard'
 import SimpleBar from 'simplebar-react'
 
@@ -10,7 +10,7 @@ type CodeBlockProps = {
   metastring: string
 }
 
-const CodeBlock: FunctionComponent<CodeBlockProps> = ({
+const CodeBlock: FunctionComponent<React.PropsWithChildren<CodeBlockProps>> = ({
   language,
   metastring,
   children,
@@ -69,7 +69,7 @@ const CodeBlock: FunctionComponent<CodeBlockProps> = ({
   }
 
   return (
-    <div className="relative bg-gray-800 sm:mx-0 -mx-5 sm:rounded-md rounded-none mb-5 overflow-hidden">
+    <div className="relative bg-gray-800 sm:mx-0 -mx-4 sm:rounded-md rounded-none mb-5 overflow-hidden">
       {labeled && (
         <>
           <div className="sm:pb-3 pb-0 px-5 pt-5 text-white text-xs font-bold select-none pointer-events-none">
@@ -80,7 +80,7 @@ const CodeBlock: FunctionComponent<CodeBlockProps> = ({
         </>
       )}
       <div>
-        <style jsx>
+        <style>
           {`
             pre {
               font-size: 85% !important;
@@ -88,6 +88,7 @@ const CodeBlock: FunctionComponent<CodeBlockProps> = ({
               border-radius: 0 !important;
               margin: 0 !important;
               padding: 0 !important;
+              tab-size: 2 !important;
             }
             @media only screen and (max-width: 640px) {
               pre {
@@ -110,18 +111,23 @@ const CodeBlock: FunctionComponent<CodeBlockProps> = ({
 
 export default CodeBlock
 
-const Line: FunctionComponent<{highlight?: boolean}> = ({
-  highlight,
-  children,
-}) => <div className={highlight ? 'bg-gray-700' : ''}>{children}</div>
+const Line: FunctionComponent<
+  React.PropsWithChildren<{highlight?: boolean}>
+> = ({highlight, children}) => (
+  <span className={highlight ? 'bg-gray-700' : ''}>{children}</span>
+)
 
-const Number: FunctionComponent = ({children}) => (
+const Number: FunctionComponent<React.PropsWithChildren<unknown>> = ({
+  children,
+}) => (
   <span className="line-number opacity-50 text-xs w-7 inline-block select-none pointer-events-none">
     {children}
   </span>
 )
 
-const CopyToClipboard: FunctionComponent<{code: string}> = ({code}) => {
+const CopyToClipboard: FunctionComponent<
+  React.PropsWithChildren<{code: string}>
+> = ({code}) => {
   const [isCopied, setCopied] = useClipboard(code, {successDuration: 1000})
   return (
     <button

@@ -2,8 +2,8 @@ import {AbilityBuilder, Ability, defineAbility} from '@casl/ability'
 import {intersection, isString} from 'lodash'
 import {loadCurrentViewerRoles} from '../lib/viewer'
 
-type Actions = 'manage' | 'upload'
-type Subjects = 'Video' | 'all'
+type Actions = 'manage' | 'upload' | 'create'
+type Subjects = 'Video' | 'Content' | 'all'
 export type Roles = 'admin' | 'editor' | 'publisher' | 'instructor'
 type AppAbility = Ability<[Actions, Subjects]>
 
@@ -25,10 +25,10 @@ function defineAbilityFor(viewerRoles: Roles[]) {
 
   // Not ready for this yet, but once the uploader is opened up to Instructors,
   // this is roughly what permissions will look like.
-  // if (includesRoles(viewerRoles, ['instructor'])) {
-  //   can('upload', 'Video')
-  //   cannot('upload', 'Video', ['instructor_id'])
-  // }
+  if (includesRoles(viewerRoles, ['instructor'])) {
+    can('upload', 'Video')
+    can('create', 'Content')
+  }
 
   if (includesRoles(viewerRoles, ['editor', 'publisher'])) {
     can('upload', 'Video', ['instructor_id'])

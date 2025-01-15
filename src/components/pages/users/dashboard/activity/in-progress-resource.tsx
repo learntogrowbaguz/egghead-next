@@ -1,12 +1,12 @@
 import * as React from 'react'
 import {FunctionComponent} from 'react'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import Link from 'next/link'
-import {convertTimeWithTitles} from 'utils/time-utils'
-import {track} from 'utils/analytics'
+import {convertTimeWithTitles} from '@/utils/time-utils'
+import {track} from '@/utils/analytics'
 import {first, get, isEmpty} from 'lodash'
-import {LessonResource} from 'types'
-import {Card} from 'components/card'
+import {LessonResource} from '@/types'
+import {Card} from '@/components/card'
 
 type InProgressResourceProps = {
   resource: any
@@ -14,11 +14,9 @@ type InProgressResourceProps = {
   className?: string
 }
 
-const InProgressResource: FunctionComponent<InProgressResourceProps> = ({
-  resource,
-  small = false,
-  className = '',
-}) => {
+const InProgressResource: FunctionComponent<
+  React.PropsWithChildren<InProgressResourceProps>
+> = ({resource, small = false, className = ''}) => {
   if (isEmpty(resource)) {
     return null
   }
@@ -76,47 +74,45 @@ const InProgressResource: FunctionComponent<InProgressResourceProps> = ({
         }`}
       >
         {image_url && resource_path && (
-          <Link href={resource_path}>
-            <a
-              onClick={() =>
-                track(`clicked continue watching`, {
-                  slug: slug,
-                  type: type,
-                  location: 'resource in progress (image)',
-                })
-              }
-              tabIndex={-1}
-            >
-              <Image
-                src={image_url}
-                alt={title}
-                width={small ? 72 : square_cover_480_url ? 160 : 48}
-                height={small ? 72 : square_cover_480_url ? 160 : 48}
-              />
-            </a>
+          <Link
+            href={resource_path}
+            onClick={() =>
+              track(`clicked continue watching`, {
+                slug: slug,
+                type: type,
+                location: 'resource in progress (image)',
+              })
+            }
+            tabIndex={-1}
+          >
+            <Image
+              src={image_url}
+              alt={title}
+              width={small ? 72 : square_cover_480_url ? 160 : 48}
+              height={small ? 72 : square_cover_480_url ? 160 : 48}
+            />
           </Link>
         )}
         <div className="space-y-1 w-full pl-4">
           <div className="">
-            <Link href={resource_path || '#'}>
-              <a
-                className="dark:hover:text-blue-300 hover:text-blue-600"
-                onClick={() =>
-                  track(`clicked continue watching`, {
-                    slug: slug,
-                    type: type,
-                    location: 'resource in progress (title)',
-                  })
-                }
+            <Link
+              href={resource_path || '#'}
+              className="dark:hover:text-blue-300 hover:text-blue-600"
+              onClick={() =>
+                track(`clicked continue watching`, {
+                  slug: slug,
+                  type: type,
+                  location: 'resource in progress (title)',
+                })
+              }
+            >
+              <h3
+                className={`${
+                  small ? 'text-lg' : 'text-xl'
+                } font-semibold leading-tight`}
               >
-                <h3
-                  className={`${
-                    small ? 'text-lg' : 'text-xl'
-                  } font-semibold leading-tight`}
-                >
-                  {title}
-                </h3>
-              </a>
+                {title}
+              </h3>
             </Link>
             {!isInProgress && series && (
               <div className="text-sm flex items-center">{series?.title}</div>
@@ -134,19 +130,18 @@ const InProgressResource: FunctionComponent<InProgressResourceProps> = ({
 
           {isInProgress && (
             <div className="flex items-center space-x-1">
-              <Link href={resource_path || '#'}>
-                <a
-                  className="text-teal-500 dark:text-teal-600 flex bg-white rounded-full"
-                  onClick={() =>
-                    track(`clicked continue watching`, {
-                      slug: slug,
-                      type: type,
-                      location: 'resource in progress (play button)',
-                    })
-                  }
-                >
-                  <PlayIcon />
-                </a>
+              <Link
+                href={resource_path || '#'}
+                className="text-teal-500 dark:text-teal-600 flex bg-white rounded-full"
+                onClick={() =>
+                  track(`clicked continue watching`, {
+                    slug: slug,
+                    type: type,
+                    location: 'resource in progress (play button)',
+                  })
+                }
+              >
+                <PlayIcon />
               </Link>
 
               {/* <div className="relative w-full h-2 bg-gray-200 dark:bg-gray-600 overflow-hidden rounded-sm">
@@ -160,17 +155,16 @@ const InProgressResource: FunctionComponent<InProgressResourceProps> = ({
                 {allLessons.map((lesson: any) => {
                   const isComplete = completedLessonSlugs.includes(lesson.slug)
                   return (
-                    <Link href={lesson.path}>
-                      <a
-                        key={lesson.slug}
-                        style={{width: `${100 / allLessons.length}%`}}
-                        className={`${
-                          isComplete
-                            ? 'dark:bg-teal-500 dark:hover:bg-teal-600 bg-teal-400 hover:bg-teal-500'
-                            : 'dark:bg-gray-500 dark:hover:bg-gray-400 bg-gray-200 hover:bg-gray-300'
-                        } h-full border dark:border-gray-800 border-white transition-colors ease-in-out duration-200`}
-                      />
-                    </Link>
+                    <Link
+                      key={lesson.slug}
+                      href={lesson.path}
+                      style={{width: `${100 / allLessons.length}%`}}
+                      className={`${
+                        isComplete
+                          ? 'dark:bg-teal-500 dark:hover:bg-teal-600 bg-teal-400 hover:bg-teal-500'
+                          : 'dark:bg-gray-500 dark:hover:bg-gray-400 bg-gray-200 hover:bg-gray-300'
+                      } h-full border dark:border-gray-800 border-white transition-colors ease-in-out duration-200`}
+                    ></Link>
                   )
                 })}
               </div>
@@ -181,19 +175,18 @@ const InProgressResource: FunctionComponent<InProgressResourceProps> = ({
               <div className="text-xs text-gray-600 dark:text-gray-300 flex-shrink-0">
                 Up Next
               </div>
-              <Link href={resource_path || '3'}>
-                <a
-                  className="text-sm font-medium leading-tight"
-                  onClick={() =>
-                    track(`clicked continue watching`, {
-                      slug: slug,
-                      type: type,
-                      location: 'resource in progress (next lesson title)',
-                    })
-                  }
-                >
-                  {current_lesson?.title}
-                </a>
+              <Link
+                href={resource_path || '3'}
+                className="text-sm font-medium leading-tight"
+                onClick={() =>
+                  track(`clicked continue watching`, {
+                    slug: slug,
+                    type: type,
+                    location: 'resource in progress (next lesson title)',
+                  })
+                }
+              >
+                {current_lesson?.title}
               </Link>
             </div>
           )}

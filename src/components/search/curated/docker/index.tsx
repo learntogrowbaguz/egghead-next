@@ -1,13 +1,13 @@
 import React from 'react'
 import dockerPageData from './docker-page-data'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import Link from 'next/link'
 import {get, find} from 'lodash'
 import Markdown from 'react-markdown'
-import {bpMinMD} from 'utils/breakpoints'
-import {track} from 'utils/analytics'
+import {bpMinMD} from '@/utils/breakpoints'
+import {track} from '@/utils/analytics'
 import SearchCuratedEssential from '../curated-essential'
-import ExternalTrackedLink from 'components/external-tracked-link'
+import ExternalTrackedLink from '@/components/external-tracked-link'
 
 const SearchDocker = () => {
   return (
@@ -23,7 +23,9 @@ const SearchDocker = () => {
   )
 }
 
-const DockerCourse: React.FC<{location: string}> = ({location}) => {
+const DockerCourse: React.FC<React.PropsWithChildren<{location: string}>> = ({
+  location,
+}) => {
   const resource: any = find(dockerPageData, {id: 'jumbotron'})
   const {path, image, title, byline, instructor} = resource
   return (
@@ -38,63 +40,60 @@ const DockerCourse: React.FC<{location: string}> = ({location}) => {
           <div className="space-y-5 mx-auto flex items-center justify-center max-w-screen-xl">
             <div className="flex flex-col items-center justify-center sm:space-x-5 sm:space-y-0 space-y-5">
               <div className="flex-shrink-0">
-                <Link href={path}>
-                  <a
-                    tabIndex={-1}
-                    onClick={() =>
-                      track('clicked jumbotron resource', {
-                        resource: path,
-                        linkType: 'image',
-                      })
-                    }
-                  >
-                    <Image
-                      quality={100}
-                      src={get(image, 'src', image)}
-                      width={250}
-                      height={250}
-                      alt={get(image, 'alt', `illustration for ${title}`)}
-                    />
-                  </a>
+                <Link
+                  href={path}
+                  tabIndex={-1}
+                  onClick={() =>
+                    track('clicked jumbotron resource', {
+                      resource: path,
+                      linkType: 'image',
+                    })
+                  }
+                >
+                  <Image
+                    quality={100}
+                    src={get(image, 'src', image)}
+                    width={250}
+                    height={250}
+                    alt={get(image, 'alt', `illustration for ${title}`)}
+                  />
                 </Link>
               </div>
               <div className="flex flex-col sm:items-start items-center">
                 <h2 className="text-xs text-orange-300 uppercase font-semibold mb-2">
                   {byline}
                 </h2>
-                <Link href={path}>
-                  <a
-                    className="text-xl font-extrabold leading-tighter hover:text-blue-300"
-                    onClick={() =>
-                      track('clicked jumbotron resource', {
-                        resource: path,
-                        linkType: 'text',
-                      })
-                    }
-                  >
-                    <h1>{title}</h1>
-                  </a>
+                <Link
+                  href={path}
+                  className="text-xl font-extrabold leading-tighter hover:text-blue-300"
+                  onClick={() =>
+                    track('clicked jumbotron resource', {
+                      resource: path,
+                      linkType: 'text',
+                    })
+                  }
+                >
+                  <h1>{title}</h1>
                 </Link>
-                <Link href={instructor.path}>
-                  <a
-                    className="mt-4 flex items-center space-x-2 text-base group"
-                    onClick={() =>
-                      track('clicked instructor in jumbotron', {
-                        instructor: instructor.slug,
-                      })
-                    }
-                  >
-                    <Image
-                      src={instructor.image}
-                      width={40}
-                      height={40}
-                      className="rounded-full"
-                      alt={instructor.name}
-                    />
-                    <span className="group-hover:text-blue-200">
-                      {instructor.name}
-                    </span>
-                  </a>
+                <Link
+                  href={instructor.path}
+                  className="mt-4 flex items-center space-x-2 text-base group"
+                  onClick={() =>
+                    track('clicked instructor in jumbotron', {
+                      instructor: instructor.slug,
+                    })
+                  }
+                >
+                  <Image
+                    src={instructor.image}
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                    alt={instructor.name}
+                  />
+                  <span className="group-hover:text-blue-200">
+                    {instructor.name}
+                  </span>
                 </Link>
               </div>
             </div>

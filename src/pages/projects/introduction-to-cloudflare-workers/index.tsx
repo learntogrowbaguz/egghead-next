@@ -1,15 +1,17 @@
 import React, {FunctionComponent} from 'react'
 import {NextSeo} from 'next-seo'
 import Markdown from 'react-markdown'
-import Topic from 'components/search/components/topic'
-import Image from 'next/image'
+import Topic from '@/components/search/components/topic'
+import Image from 'next/legacy/image'
 import Link from 'next/link'
 
 type LandingProps = {
   course: any
 }
 
-const landingPage: FunctionComponent<LandingProps> = () => {
+const landingPage: FunctionComponent<
+  React.PropsWithChildren<LandingProps>
+> = () => {
   const course = {
     id: '418892',
     title: 'Introduction to Cloudflare Workers',
@@ -188,14 +190,15 @@ Your task is to create and deploy a Cloudflare Worker that will examine the requ
                 return (
                   <li key={`${course.path}::${lesson.slug}`}>
                     <div className="flex items-center py-2 leading-tight">
-                      <Link href={lesson.path}>
-                        <a className="flex items-center py-1 space-x-2 text-gray-700 dark:text-gray-100 hover:text-blue-600 group">
-                          {/* prettier-ignore */}
-                          <div className="flex-shrink-0"><svg className="text-gray-400 dark:text-gray-400 group-hover:text-blue-600" width={18} height={18} viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><g fill="none" ><path fillRule="evenodd" clipRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM9.555 7.168A1 1 0 0 0 8 8v4a1 1 0 0 0 1.555.832l3-2a1 1 0 0 0 0-1.664l-3-2z" fill="currentColor"/></g></svg></div>
-                          <Markdown className="mt-0 text-base prose text-gray-700 dark:prose-dark dark:prose-a:text-blue-300 prose-a:text-blue-500 md:dark:prose-lg-dark md:prose-lg dark:text-gray-100 md:text-lg">
-                            {lesson.title}
-                          </Markdown>
-                        </a>
+                      <Link
+                        href={lesson.path}
+                        className="flex items-center py-1 space-x-2 text-gray-700 dark:text-gray-100 hover:text-blue-600 group"
+                      >
+                        {/* prettier-ignore */}
+                        <div className="flex-shrink-0"><svg className="text-gray-400 dark:text-gray-400 group-hover:text-blue-600" width={18} height={18} viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><g fill="none" ><path fillRule="evenodd" clipRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM9.555 7.168A1 1 0 0 0 8 8v4a1 1 0 0 0 1.555.832l3-2a1 1 0 0 0 0-1.664l-3-2z" fill="currentColor"/></g></svg></div>
+                        <Markdown className="mt-0 text-base prose text-gray-700 dark:prose-dark dark:prose-a:text-blue-300 prose-a:text-blue-500 md:dark:prose-lg-dark md:prose-lg dark:text-gray-100 md:text-lg">
+                          {lesson.title}
+                        </Markdown>
                       </Link>
                     </div>
                   </li>
@@ -262,13 +265,13 @@ type ProjectBriefProps = {
   topic: Topic
   className: any
   pageData?: any
-  CTAComponent?: React.FC
+  CTAComponent?: React.FC<React.PropsWithChildren<unknown>>
   ogImage?: string
   verticalImage?: string
   cardType?: CARD_TYPES
 }
 
-const ProjectBrief: React.FC<ProjectBriefProps> = ({
+const ProjectBrief: React.FC<React.PropsWithChildren<ProjectBriefProps>> = ({
   topic,
   children,
   ogImage,

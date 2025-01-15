@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from 'react'
 import {DialogOverlay, DialogContent} from '@reach/dialog'
-import IconX from 'components/icons/icon-x'
+import IconX from '@/components/icons/icon-x'
 import isObject from 'lodash/isObject'
 import {StateValue} from 'xstate'
 
@@ -18,12 +18,9 @@ type DialogProps = {
   onConfirm: () => void
 }
 
-const RemoveMemberConfirmDialog: FunctionComponent<DialogProps> = ({
-  state,
-  onClose,
-  member,
-  onConfirm,
-}) => {
+const RemoveMemberConfirmDialog: FunctionComponent<
+  React.PropsWithChildren<DialogProps>
+> = ({state, onClose, member, onConfirm}) => {
   const isOpen = state !== 'closed'
   const loading = isObject(state) && state?.open === 'executingAction'
   const {name, email} = member || {}

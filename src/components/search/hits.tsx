@@ -1,19 +1,43 @@
-import React, {FunctionComponent} from 'react'
-import {connectHits} from 'react-instantsearch-dom'
+import React from 'react'
+import {isEmpty} from 'lodash'
+import {useHits} from 'react-instantsearch'
 import HitComponent from './components/hit'
+import {useViewer} from '@/context/viewer-context'
+import {loadUserCompletedCourses} from '@/lib/users'
+import {useQuery} from '@tanstack/react-query'
+import {UseHitsProps} from 'react-instantsearch'
 
-type CustomHitsProps = {
-  hits: any[]
+const useUserCompletedCourses = (viewerId: number) => {
+  return useQuery(['completeCourses'], async () => {
+    if (viewerId) {
+      const {completeCourses} = await loadUserCompletedCourses()
+      return completeCourses
+    }
+  })
 }
 
-const CustomHits: FunctionComponent<CustomHitsProps> = ({hits}) => (
-  <div className="grid grid-col-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-max gap-3 p-3">
-    {hits.map((hit) => (
-      <HitComponent key={hit.objectID} hit={hit} />
-    ))}
-  </div>
-)
+const CustomHits = (props: UseHitsProps) => {
+  const {viewer} = useViewer()
+  const viewerId = viewer?.id
+  const {data: completeCourseData} = useUserCompletedCourses(viewerId)
+  const {hits} = useHits(props)
 
-const Hits = connectHits(CustomHits)
+  const completedCoursesIds =
+    !isEmpty(completeCourseData) &&
+    completeCourseData.map((course: any) => course.collection.id)
+  return (
+    <div className="grid grid-col-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-max gap-3 p-3">
+      {hits.map((hit) => {
+        return (
+          <HitComponent
+            key={hit.objectID}
+            hit={hit}
+            completedCoursesIds={completedCoursesIds}
+          />
+        )
+      })}
+    </div>
+  )
+}
 
-export default Hits
+export default CustomHits

@@ -1,16 +1,18 @@
 import * as React from 'react'
 import * as Yup from 'yup'
-import {useViewer} from 'context/viewer-context'
+import {useViewer} from '@/context/viewer-context'
 import {FormikProps, useFormik} from 'formik'
-import Spinner from 'components/spinner'
-import {track} from 'utils/analytics'
+import Spinner from '@/components/spinner'
+import {track} from '@/utils/analytics'
 import {useRouter} from 'next/router'
 
 type FormikValues = {
   email: string
 }
 
-const CreateAccount: React.FC<{actionLabel?: string; location: string}> = ({
+const CreateAccount: React.FC<
+  React.PropsWithChildren<{actionLabel?: string; location: string}>
+> = ({
   actionLabel = (
     <>
       Start learning{' '}

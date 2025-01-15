@@ -1,15 +1,17 @@
 import Link from 'next/link'
 import React from 'react'
 import {GetServerSideProps} from 'next'
-import {getTokenFromCookieHeaders} from 'utils/auth'
-import LoginRequired, {LoginRequiredParams} from 'components/login-required'
-import {useViewer} from 'context/viewer-context'
+import {getTokenFromCookieHeaders} from '@/utils/auth'
+import LoginRequired, {LoginRequiredParams} from '@/components/login-required'
+import {useViewer} from '@/context/viewer-context'
 import get from 'lodash/get'
-import Eggo from 'components/icons/eggo'
-import Image from 'next/image'
-import {Viewer} from 'types'
+import Eggo from '@/components/icons/eggo'
+import Image from 'next/legacy/image'
+import {Viewer} from '@/types'
 
-const DiscordPage: React.FC<LoginRequiredParams> = ({loginRequired}) => {
+const DiscordPage: React.FC<React.PropsWithChildren<LoginRequiredParams>> = ({
+  loginRequired,
+}) => {
   const {viewer} = useViewer()
   const name = get(viewer, 'name', '')
 
@@ -38,15 +40,14 @@ const DiscordPage: React.FC<LoginRequiredParams> = ({loginRequired}) => {
             aren't a PRO member, you will still be added to the server. */}
           </p>
 
-          <Link href={process.env.NEXT_PUBLIC_DISCORD_AUTHORIZE}>
-            <a
-              className={`flex gap-5 rounded-md text-white items-center bg-[#5865F2] justify-center pl-5 leading-3 overflow-hidden font-medium hover:bg-opacity-90 transition`}
-            >
-              <span className="py-1">Join egghead on Discord</span>
-              <span className="bg-black bg-opacity-10 px-5 py-5" aria-hidden>
-                <DiscordLogo />
-              </span>
-            </a>
+          <Link
+            href={process.env.NEXT_PUBLIC_DISCORD_AUTHORIZE}
+            className={`flex gap-5 rounded-md text-white items-center bg-[#5865F2] justify-center pl-5 leading-3 overflow-hidden font-medium hover:bg-opacity-90 transition`}
+          >
+            <span className="py-1">Join egghead on Discord</span>
+            <span className="bg-black bg-opacity-10 px-5 py-5" aria-hidden>
+              <DiscordLogo />
+            </span>
           </Link>
         </div>
       )}
@@ -54,7 +55,9 @@ const DiscordPage: React.FC<LoginRequiredParams> = ({loginRequired}) => {
   )
 }
 
-const HeaderImage: React.FC<{viewer: Viewer}> = ({viewer}) => {
+const HeaderImage: React.FC<React.PropsWithChildren<{viewer: Viewer}>> = ({
+  viewer,
+}) => {
   const avatar = viewer.avatar_url.includes('gravatar')
     ? null
     : viewer.avatar_url
@@ -82,7 +85,9 @@ const HeaderImage: React.FC<{viewer: Viewer}> = ({viewer}) => {
   )
 }
 
-const DiscordLogo: React.FC<{className?: string}> = ({className = 'w-5'}) => (
+const DiscordLogo: React.FC<React.PropsWithChildren<{className?: string}>> = ({
+  className = 'w-5',
+}) => (
   <svg
     className={className}
     viewBox="0 0 71 55"

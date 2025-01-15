@@ -2,31 +2,33 @@ import Link from 'next/link'
 import * as React from 'react'
 import Markdown from 'react-markdown'
 
-const InstructorProfile: React.FunctionComponent<{
-  name: string
-  avatar_url: string
-  url: string
-  bio_short?: string
-  twitter?: string
-  className?: string
-}> = ({className, url, name, avatar_url, bio_short, twitter}) => (
+const InstructorProfile: React.FunctionComponent<
+  React.PropsWithChildren<{
+    name: string
+    avatar_url: string
+    url: string
+    bio_short?: string
+    twitter?: string
+    className?: string
+  }>
+> = ({className, url, name, avatar_url, bio_short, twitter}) => (
   <div className={className ? className : ''}>
-    <div className="flex flex-shrink-0">
+    <div className="flex flex-shrink-0 items-center">
       <div
-        className="sm:w-10 sm:h-10 w-8 h-8 rounded-full flex-shrink-0"
+        className="w-10 h-10 rounded-full flex-shrink-0 bg-cover"
         style={{
-          background: `url(${avatar_url})`,
-          backgroundSize: 'cover',
+          backgroundImage: `url(${avatar_url})`,
         }}
       />
-      <div className="sm:pl-2 pl-1 flex flex-col justify-center">
-        <h4 className="text-gray-700 dark:text-gray-400 text-sm leading-tighter">
+      <div className="ml-2 flex flex-col justify-center">
+        <span className="text-gray-700 dark:text-gray-400 text-sm leading-tighter">
           Instructor
-        </h4>
-        <Link href={`/q/resources-by-${url}`}>
-          <a className="flex hover:underline flex-shrink-0">
-            <span className="font-semibold text-base">{name}</span>
-          </a>
+        </span>
+        <Link
+          href={`/q/resources-by-${url}`}
+          className="flex hover:underline flex-shrink-0"
+        >
+          <h2 className="font-semibold text-base">{name}</h2>
         </Link>
       </div>
     </div>

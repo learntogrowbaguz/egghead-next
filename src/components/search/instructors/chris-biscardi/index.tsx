@@ -1,9 +1,9 @@
 import groq from 'groq'
 import * as React from 'react'
 import SearchInstructorEssential from '../instructor-essential'
-import CtaCard from 'components/search/components/cta-card'
-import {HorizontalResourceCard} from 'components/card/horizontal-resource-card'
-import {VerticalResourceCollectionCard} from 'components/card/vertical-resource-collection-card'
+import CtaCard from '@/components/search/components/cta-card'
+import {HorizontalResourceCard} from '@/components/card/horizontal-resource-card'
+import {VerticalResourceCollectionCard} from '@/components/card/vertical-resource-collection-card'
 
 export default function SearchChrisBiscardi({instructor}: {instructor: any}) {
   const {courses, jamstackCollection, databaseCollection} = instructor
@@ -24,17 +24,22 @@ export default function SearchChrisBiscardi({instructor}: {instructor: any}) {
             />
           }
         />
-        <section className="flex md:flex-row flex-col max-w-screen-xl mx-auto gap-4 px-4 md:px-0 ">
-          <HorizontalResourceCard
-            resource={secondCourse}
-            location={location}
-            className="md:w-1/2"
-          />
-          <HorizontalResourceCard
-            resource={thirdCourse}
-            location={location}
-            className="md:w-1/2"
-          />
+        <section>
+          <h2 className="sm:px-5 px-3 my-4 lg:text-2xl sm:text-xl text-lg dark:text-white font-semibold leading-tight">
+            Featured Courses
+          </h2>
+          <div className="flex md:flex-row flex-col max-w-screen-xl mx-auto gap-4 px-4 md:px-0 ">
+            <HorizontalResourceCard
+              resource={secondCourse}
+              location={location}
+              className="md:w-1/2"
+            />
+            <HorizontalResourceCard
+              resource={thirdCourse}
+              location={location}
+              className="md:w-1/2"
+            />
+          </div>
         </section>
 
         <section className="flex md:flex-row flex-col max-w-screen-xl mx-auto gap-4 px-4 md:px-0 my-4">
@@ -42,12 +47,10 @@ export default function SearchChrisBiscardi({instructor}: {instructor: any}) {
             <VerticalResourceCollectionCard
               resource={jamstackCollection}
               className="w-1/2"
-              titleColor="purple-500"
             />
             <VerticalResourceCollectionCard
               resource={databaseCollection}
               className="w-1/2"
-              titleColor="orange-500"
             />
           </div>
         </section>
@@ -67,7 +70,7 @@ export const ChrisBiscardiQuery = groq`
       byline,
       image,
       'background': images[label == 'feature-card-background'][0].url,
-      'instructor': collaborators[]->[role == 'instructor'][0]{
+      'instructor': collaborators[@->.role == 'instructor'][0]->{
         'name': person->.name
       },
     }
@@ -85,7 +88,7 @@ export const ChrisBiscardiQuery = groq`
           byline,
           image,
           'background': images[label == 'feature-card-background'][0].url,
-          'instructor': collaborators[]->[role == 'instructor'][0]{
+          'instructor': collaborators[@->.role == 'instructor'][0]->{
             'name': person->.name
           }
         },
@@ -111,7 +114,7 @@ export const ChrisBiscardiQuery = groq`
           byline,
           image,
           'background': images[label == 'feature-card-background'][0].url,
-          'instructor': collaborators[]->[role == 'instructor'][0]{
+          'instructor': collaborators[@->.role == 'instructor'][0]->{
             'name': person->.name
           }
         },

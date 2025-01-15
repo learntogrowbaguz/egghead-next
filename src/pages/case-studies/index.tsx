@@ -1,29 +1,42 @@
 import * as React from 'react'
 import groq from 'groq'
-import {sanityClient} from 'utils/sanity-client'
+import {sanityClient} from '@/utils/sanity-client'
 import Link from 'next/link'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
+import {NextSeo} from 'next-seo'
+import {useRouter} from 'next/router'
 
 export const HIDDEN_CASE_STUDIES = ['cloudflare'] // these exist on their own respective routes (not under /case-studies)
 
-const CaseStudies: React.FC = (allCaseStudies: any) => {
+const CaseStudies: React.FC<React.PropsWithChildren<unknown>> = (
+  allCaseStudies: any,
+) => {
+  const router = useRouter()
+
   return (
-    <div className="container py-10 lg:py-16">
-      <h1 className="pb-16 text-2xl font-bold text-center md:text-4xl">
-        egghead Case Studies
-      </h1>
+    <>
+      <NextSeo
+        canonical={`${process.env.NEXT_PUBLIC_DEPLOYMENT_URL}${router.asPath}`}
+        openGraph={{
+          url: `${process.env.NEXT_PUBLIC_DEPLOYMENT_URL}${router.asPath}`,
+          site_name: 'egghead',
+        }}
+      />
+      <div className="container py-10 lg:py-16">
+        <h1 className="pb-16 text-2xl font-bold text-center md:text-4xl">
+          egghead Case Studies
+        </h1>
 
-      <div className="grid max-w-lg gap-5 mx-auto mt-12 lg:grid-cols-3 lg:max-w-none">
-        {allCaseStudies.allCaseStudies.map((caseStudy: any) => {
-          const fullSlug = `/case-studies/${caseStudy.slug}`
+        <div className="grid max-w-lg gap-5 mx-auto mt-12 lg:grid-cols-3 lg:max-w-none">
+          {allCaseStudies.allCaseStudies.map((caseStudy: any) => {
+            const fullSlug = `/case-studies/${caseStudy.slug}`
 
-          return (
-            <div
-              key={fullSlug}
-              className="flex flex-col overflow-hidden transition duration-500 ease-in-out bg-white rounded-lg shadow-md dark:bg-gray-800 hover:-translate-y-1"
-            >
-              <Link href={fullSlug}>
-                <a className="">
+            return (
+              <div
+                key={fullSlug}
+                className="flex flex-col overflow-hidden transition duration-500 ease-in-out bg-white rounded-lg shadow-md dark:bg-gray-800 hover:-translate-y-1"
+              >
+                <Link href={fullSlug} className="">
                   {caseStudy.coverImage?.url && (
                     <div className="flex-shrink-0">
                       <Image
@@ -37,7 +50,6 @@ const CaseStudies: React.FC = (allCaseStudies: any) => {
                       />
                     </div>
                   )}
-
                   <div className="flex flex-col justify-between flex-1 p-6">
                     <div className="flex-1">
                       {caseStudy.title && (
@@ -53,13 +65,13 @@ const CaseStudies: React.FC = (allCaseStudies: any) => {
                       )}
                     </div>
                   </div>
-                </a>
-              </Link>
-            </div>
-          )
-        })}
+                </Link>
+              </div>
+            )
+          })}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

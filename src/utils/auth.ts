@@ -1,5 +1,5 @@
 import OAuthClient from 'client-oauth2'
-import {track, identify} from './analytics'
+import analytics from '@/utils/analytics'
 import axios from 'axios'
 import get from 'lodash/get'
 import cookie from './cookies'
@@ -108,24 +108,29 @@ export default class Auth {
   }
 
   requestSignInEmail(email: string) {
-    return http.post(
-      `${process.env.NEXT_PUBLIC_AUTH_DOMAIN}/api/v1/users/send_token`,
-      {
+    return http
+      .post(`${process.env.NEXT_PUBLIC_AUTH_DOMAIN}/api/v1/users/send_token`, {
         email,
         client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
         redirect_uri: AUTH_REDIRECT_URL,
-      },
-    )
+      })
+      .then((response) => {
+        if (response.data.redirect_url) {
+          try {
+            window.location.href = response.data.redirect_url
+          } catch (error) {
+            console.error('Error redirecting to', response.data.redirect_url)
+          }
+        }
+      })
   }
 
   login() {
     window.open(this.eggheadAuth.token.getUri())
-    track('logged in')
   }
 
   logout() {
     return new Promise((resolve) => {
-      track('logged out')
       resolve(this.clearLocalStorage())
     })
   }
@@ -155,7 +160,7 @@ export default class Auth {
     return new Promise((resolve, reject) => {
       this.setSession(accessToken, expiresInSeconds).then(
         (user: any) => {
-          identify(user)
+          analytics.identify(user)
           resolve(user)
         },
         (error) => {
@@ -245,7 +250,7 @@ export default class Auth {
           if (!this.isAuthenticated()) {
             return reject('not authenticated')
           }
-          if (data) identify(data)
+          if (data) analytics.identify(data)
           if (data.contact_id) {
             cookie.set(CIO_IDENTIFIER_KEY, data.contact_id)
           }

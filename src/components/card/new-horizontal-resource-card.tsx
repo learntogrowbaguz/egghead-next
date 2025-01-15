@@ -8,55 +8,87 @@ import {
   CardAuthor,
   CardFooter,
 } from './index'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import Link from 'next/link'
-import {track} from 'utils/analytics'
+import {track} from '@/utils/analytics'
 import {get, isEmpty} from 'lodash'
-import {CardResource} from 'types'
+import {CardResource} from '@/types'
 import {Textfit} from 'react-textfit'
 import ReactMarkdown from 'react-markdown'
 import cx from 'classnames'
 import truncate from 'lodash/truncate'
+import analytics from '@/utils/analytics'
+import CheckIcon from '@/components/icons/check'
 
-const HorizontalResourceCard: React.FC<{
-  resource: CardResource
-  location?: string
-  describe?: boolean
-  className?: string
-}> = ({
+const HorizontalResourceCard: React.FC<
+  React.PropsWithChildren<{
+    resource: CardResource
+    location?: string
+    describe?: boolean
+    className?: string
+    completedCoursesIds?: number[]
+    feature?: string
+  }>
+> = ({
   children,
   resource,
   location,
   className = '',
   describe = true,
+  completedCoursesIds,
+  feature,
   ...props
 }) => {
   if (isEmpty(resource)) return null
+  const {externalId} = resource
+  const isCourseCompleted =
+    !isEmpty(completedCoursesIds) &&
+    externalId &&
+    completedCoursesIds?.some((courseId: number) => courseId === externalId)
+
+  const resourceType =
+    resource.name === 'landing-page' ? 'guide' : resource.name
+
   const defaultClassName =
-    'rounded-md aspect-w-4 aspect-h-2 w-full h-full transition-all ease-in-out duration-200 relative overflow-hidden group dark:bg-gray-800 bg-white dark:bg-opacity-60 shadow-smooth dark:hover:bg-gray-700 dark:hover:bg-opacity-50'
+    'rounded-md w-full h-full transition-all ease-in-out duration-200 relative overflow-hidden group dark:bg-gray-800 bg-white dark:bg-opacity-60 shadow-smooth dark:hover:bg-gray-700 dark:hover:bg-opacity-50 aspect-[2/1] flex'
   return (
     <ResourceLink
       path={(resource.path || resource.url) as string}
-      location={location}
+      location={location as string}
       className={className}
+      resource_type={resourceType || ''}
+      instructor={resource.instructor?.name}
+      tag={resource.tag?.name}
+      feature={feature}
     >
       <Card {...props} resource={resource} className={defaultClassName}>
-        <CardContent className="grid grid-cols-8 gap-5 items-center px-5 py-2">
-          <CardHeader className="col-span-3 flex items-center justify-center">
+        <CardContent className="grid grid-cols-8 gap-5   items-center px-5 py-2">
+          <CardHeader
+            className={`col-span-3 flex items-center justify-center ${cx({
+              '-ml-32 -my-64': resource.name === 'article',
+            })}`}
+          >
             <PreviewImage
-              name={resource.name}
+              name={resourceType || ''}
               image={resource.image}
-              title={resource.title}
+              title={resource.title || ''}
             />
           </CardHeader>
           <CardBody className="col-span-5">
             {resource.name && (
-              <p
-                aria-hidden
-                className="uppercase font-medium sm:text-[0.65rem] text-[0.55rem] pb-1 text-gray-700 dark:text-indigo-100 opacity-60"
-              >
-                {resource.name}
-              </p>
+              <div className="flex items-center mb-1">
+                {isCourseCompleted && (
+                  <span title="Course completed" className=" text-green-500">
+                    <CheckIcon />
+                  </span>
+                )}
+                <p
+                  aria-hidden
+                  className="uppercase font-medium lg:text-[0.65rem] text-[0.55rem] text-gray-700 dark:text-indigo-100 opacity-60"
+                >
+                  {resourceType}
+                </p>
+              </div>
             )}
             <Textfit
               mode="multi"
@@ -81,32 +113,59 @@ const HorizontalResourceCard: React.FC<{
   )
 }
 
-export const ResourceLink: React.FC<{
-  path: string
-  location?: string
-  className?: string
-  linkType?: string
-}> = ({children, path, location, linkType = 'text', ...props}) => (
-  <Link href={path}>
-    <a
-      onClick={() => {
-        track('clicked resource', {
-          resource: path,
-          linkType,
+export const ResourceLink: React.FC<
+  React.PropsWithChildren<{
+    path: string
+    resource_type: string
+    location: string
+    tag?: any
+    instructor?: string
+    className?: string
+    linkType?: string
+    feature?: string
+  }>
+> = ({
+  children,
+  path,
+  tag,
+  resource_type,
+  instructor,
+  location,
+  linkType = 'text',
+  feature,
+  ...props
+}) => (
+  <Link
+    href={path}
+    onClick={() => {
+      if (feature) {
+        analytics.events.activityInternalLinkClick(
+          resource_type,
           location,
-        })
-      }}
-      {...props}
-    >
-      {children}
-    </a>
+          tag,
+          path,
+          instructor,
+          feature,
+        )
+      } else {
+        analytics.events.activityInternalLinkClick(
+          resource_type,
+          location,
+          tag,
+          path,
+          instructor,
+        )
+      }
+    }}
+    {...props}
+  >
+    {children}
   </Link>
 )
 
-const PreviewImage: React.FC<{title: string; image: any; name: string}> = ({
-  image,
-  name,
-}) => {
+const PreviewImage: React.FC<
+  React.PropsWithChildren<{title: string; image: any; name: string}>
+> = ({image, name}) => {
   if (!image) return null
 
   const getSize = (name: string) => {
@@ -115,6 +174,8 @@ const PreviewImage: React.FC<{title: string; image: any; name: string}> = ({
         return 40
       case 'talk':
         return 80
+      case 'article':
+        return 500
       default:
         return 200
     }
@@ -132,6 +193,7 @@ const PreviewImage: React.FC<{title: string; image: any; name: string}> = ({
         src={get(image, 'src', image)}
         width={getSize(name)}
         height={getSize(name)}
+        objectFit={name === 'article' ? 'cover' : 'contain'}
         quality={100}
         alt=""
       />

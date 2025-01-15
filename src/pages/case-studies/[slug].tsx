@@ -1,14 +1,13 @@
 import * as React from 'react'
 import groq from 'groq'
 import Link from 'next/link'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import {NextSeo} from 'next-seo'
 import {useRouter} from 'next/router'
 import {MDXRemote} from 'next-mdx-remote'
-import mdxComponents from 'components/mdx'
-import {sanityClient} from 'utils/sanity-client'
+import mdxComponents from '@/components/mdx'
+import {sanityClient} from '@/utils/sanity-client'
 import {serialize} from 'next-mdx-remote/serialize'
-import {withProse} from 'utils/remark/with-prose'
 import {HIDDEN_CASE_STUDIES} from './index'
 
 type AuthorResource = {
@@ -29,10 +28,12 @@ export type CaseStudyResource = {
   resources?: any[]
 }
 
-const PortraitWithPattern: React.FC<{
-  coverImage: any
-  title: string
-}> = ({coverImage, title}) => {
+const PortraitWithPattern: React.FC<
+  React.PropsWithChildren<{
+    coverImage: any
+    title: string
+  }>
+> = ({coverImage, title}) => {
   return coverImage?.url ? (
     <div className="relative">
       <svg
@@ -68,15 +69,17 @@ const CaseStudy = (props: CaseStudyResource) => {
   const {
     title = 'Missing title',
     author = {name: 'Unknown Author'},
-    seo = {},
+    seo: originalSEO = {},
     coverImage,
     source,
   } = props
 
+  const seo = originalSEO ? originalSEO : {}
+
   const router = useRouter()
 
   const url = process.env.NEXT_PUBLIC_DEPLOYMENT_URL + router.asPath
-  const canonicalUrl = seo.canonicalUrl ? seo.canonicalUrl : url
+  const canonicalUrl = seo?.canonicalUrl ? seo.canonicalUrl : url
 
   return (
     <>
@@ -124,7 +127,7 @@ const CaseStudy = (props: CaseStudyResource) => {
           </div>
         </div>
         <article className="max-w-screen-md mx-auto mt-3 mb-16 lg:mt-14 md:mt-8">
-          <main>
+          <main className="prose dark:prose-dark sm:prose-lg lg:prose-xl max-w-none dark:prose-a:text-blue-300 prose-a:text-blue-500">
             <MDXRemote {...source} components={mdxComponents} />
           </main>
         </article>
@@ -178,10 +181,8 @@ const Author = ({author}: any) => {
   )
   return name ? (
     path ? (
-      <Link href={path}>
-        <a className="inline-flex items-center space-x-2">
-          <Profile />
-        </a>
+      <Link href={path} className="inline-flex items-center space-x-2">
+        <Profile />
       </Link>
     ) : (
       <div className="inline-flex items-center space-x-2">
@@ -207,7 +208,6 @@ export async function getStaticProps(context: any) {
   const mdxSource = await serialize(body, {
     mdxOptions: {
       remarkPlugins: [
-        withProse,
         require(`remark-slug`),
         require(`remark-footnotes`),
         require(`remark-code-titles`),

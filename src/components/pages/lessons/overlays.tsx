@@ -1,19 +1,17 @@
 import * as React from 'react'
-import {VideoResource} from 'types'
+import {VideoResource} from '@/types'
 import {first, get} from 'lodash'
-import axios from 'utils/configured-axios'
-import {track} from 'utils/analytics'
+import axios from '@/utils/configured-axios'
+import {track} from '@/utils/analytics'
 import specialLessons from './special-lessons'
-import {CIOSubscriber} from 'hooks/use-cio'
+import {CIOSubscriber} from '@/hooks/use-cio'
 
-import OverlayWrapper from 'components/pages/lessons/overlay/wrapper'
-
-import RateCourseOverlay from 'components/pages/lessons/overlay/rate-course-overlay'
-import RecommendNextStepOverlay from 'components/pages/lessons/overlay/recommend-next-step-overlay'
-import GoProCtaOverlay from 'components/pages/lessons/overlay/go-pro-cta-overlay'
-import WatchFullCourseCtaOverlay from 'components/pages/lessons/overlay/watch-full-course-cta-overlay'
-import WatchNextLessonCtaOverlay from 'components/pages/lessons/overlay/watch-next-lesson-cta-overlay'
-import EmailCaptureCtaOverlay from 'components/pages/lessons/overlay/email-capture-cta-overlay'
+import RateCourseOverlay from '@/components/pages/lessons/overlay/rate-course-overlay'
+import RecommendNextStepOverlay from '@/components/pages/lessons/overlay/recommend-next-step-overlay'
+import GoProCtaOverlay from '@/components/pages/lessons/overlay/go-pro-cta-overlay'
+import WatchNextLessonCtaOverlay from '@/components/pages/lessons/overlay/watch-next-lesson-cta-overlay'
+import EmailCaptureCtaOverlay from '@/components/pages/lessons/overlay/email-capture-cta-overlay'
+import AnonUserOverlay from '@/components/pages/lessons/overlay/anon-user-overlay'
 
 type OverlaysProps = {
   lessonSend: Function
@@ -27,7 +25,7 @@ type OverlaysProps = {
   cioIdentify: Function
 }
 
-const Overlays: React.FC<OverlaysProps> = ({
+const Overlays: React.FC<React.PropsWithChildren<OverlaysProps>> = ({
   lessonSend,
   lessonState,
   lesson,
@@ -65,10 +63,11 @@ const Overlays: React.FC<OverlaysProps> = ({
         }}
       />
     )
-  } else if (lessonState.matches('pitchingCourse')) {
+  } else if (lessonState.matches('offeringSearch')) {
     overlayToRender = (
-      <WatchFullCourseCtaOverlay
+      <AnonUserOverlay
         lesson={lesson}
+        nextLesson={nextLesson}
         onClickRewatch={() => {
           lessonSend('VIEW')
           videoService.send({type: 'PLAY'})
@@ -129,13 +128,7 @@ const Overlays: React.FC<OverlaysProps> = ({
     overlayToRender = <RecommendNextStepOverlay lesson={lesson} />
   }
 
-  return (
-    <>
-      {overlayToRender ? (
-        <OverlayWrapper>{overlayToRender}</OverlayWrapper>
-      ) : null}
-    </>
-  )
+  return <>{overlayToRender ? overlayToRender : null}</>
 }
 
 export default Overlays

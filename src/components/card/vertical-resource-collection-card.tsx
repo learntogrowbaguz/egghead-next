@@ -7,81 +7,81 @@ import {
   CardBody,
   CardMeta,
 } from './index'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import Link from 'next/link'
 import Markdown from '../markdown'
-import {track} from 'utils/analytics'
+import {track} from '@/utils/analytics'
 import {get} from 'lodash'
-import {CardResource} from 'types'
+import {CardResource} from '@/types'
 import {Textfit} from 'react-textfit'
 
-const VerticalResourceCollectionCard: React.FC<{
-  resource: CardResource
-  location?: string
-  describe?: boolean
-  className?: string
-  titleColor?: string
-}> = ({resource, location, className = '', titleColor, ...props}) => {
+const VerticalResourceCollectionCard: React.FC<
+  React.PropsWithChildren<{
+    resource: CardResource
+    location?: string
+    describe?: boolean
+    className?: string
+    titleColor?: string
+  }>
+> = ({resource, location, className = '', titleColor, ...props}) => {
   className = `${className} border-none flex flex-col py-5`
 
   return (
     <Card {...props} className={className}>
       {resource.image && (
-        <Link href={resource.path}>
-          <a
-            onClick={() => {
-              track('clicked resource', {
-                resource: resource.path,
-                linkType: 'image',
-                location,
-              })
-            }}
-            className="block flex-shrink-0 sm:w-auto m:w-24 w-36"
-            tabIndex={-1}
-          >
-            <CardPreview>
-              <Image
-                src={get(resource.image, 'src', resource.image)}
-                width={220}
-                height={220}
-                layout="fixed"
-                className="object-cover rounded-md"
-                alt={`illustration for ${resource.title}`}
-              />
-            </CardPreview>
-          </a>
+        <Link
+          href={resource.path}
+          onClick={() => {
+            track('clicked resource', {
+              resource: resource.path,
+              linkType: 'image',
+              location,
+            })
+          }}
+          className="block flex-shrink-0 sm:w-auto m:w-24 w-36"
+          tabIndex={-1}
+        >
+          <CardPreview>
+            <Image
+              src={get(resource.image, 'src', resource.image) as string}
+              width={220}
+              height={220}
+              layout="fixed"
+              className="object-cover rounded-md"
+              alt={`illustration for ${resource.title}`}
+            />
+          </CardPreview>
         </Link>
       )}
       <CardContent>
         <CardHeader>
-          <h2 className="uppercase font-semibold text-xs mb-1 text-gray-700 dark:text-gray-300">
+          <p className="uppercase font-semibold text-xs mb-1 text-gray-700 dark:text-gray-300">
             {resource.name}
-          </h2>
+          </p>
           {resource.path ? (
-            <Link href={resource.path}>
-              <a
-                onClick={() => {
-                  track('clicked resource', {
-                    resource: resource.path,
-                    linkType: 'text',
-                    location,
-                  })
-                }}
-                className="hover:text-blue-600 dark:hover:text-blue-300"
+            <Link
+              href={resource.path}
+              onClick={() => {
+                track('clicked resource', {
+                  resource: resource.path,
+                  linkType: 'text',
+                  location,
+                })
+              }}
+              className="hover:text-blue-600 dark:hover:text-blue-300"
+            >
+              <h2
+                className={`text-xl font-bold leading-tighter text-${titleColor}`}
               >
-                <h3
-                  className={`text-xl font-bold leading-tighter text-${titleColor}`}
-                >
-                  {resource.title}
-                </h3>
-              </a>
+                {resource.title}
+              </h2>
             </Link>
           ) : (
-            <h3
+            <h2
               className={`text-xl font-bold leading-tighter text-${titleColor}`}
             >
               {resource.title}
-            </h3>
+            </h2>
           )}
         </CardHeader>
         <CardMeta className="text-xs text-gray-600 dark:text-gray-300 mb-2 mt-1">
@@ -101,54 +101,54 @@ const VerticalResourceCollectionCard: React.FC<{
             return (
               <Card key={resource.id} {...props} className={className} quiet>
                 {resource.image && (
-                  <Link href={resource.path}>
-                    <a
-                      onClick={() => {
-                        track('clicked resource', {
-                          resource: resource.path,
-                          linkType: 'image',
-                          location,
-                        })
-                      }}
-                      className="sm:w-12 w-12 flex-shrink-0 flex justify-center items-center"
-                      tabIndex={-1}
-                    >
-                      <CardPreview>
-                        <Image
-                          src={get(resource.image, 'src', resource.image)}
-                          width={getImageSize(
-                            get(resource.image, 'src', resource.image),
-                          )}
-                          height={getImageSize(
-                            get(resource.image, 'src', resource.image),
-                          )}
-                          alt={`illustration for ${resource.title}`}
-                        />
-                      </CardPreview>
-                    </a>
+                  <Link
+                    href={resource.path}
+                    onClick={() => {
+                      track('clicked resource', {
+                        resource: resource.path,
+                        linkType: 'image',
+                        location,
+                      })
+                    }}
+                    className="sm:w-12 w-12 flex-shrink-0 flex justify-center items-center"
+                    tabIndex={-1}
+                  >
+                    <CardPreview>
+                      <Image
+                        src={
+                          get(resource.image, 'src', resource.image) as string
+                        }
+                        width={getImageSize(
+                          get(resource.image, 'src', resource.image) as string,
+                        )}
+                        height={getImageSize(
+                          get(resource.image, 'src', resource.image) as string,
+                        )}
+                        alt={`illustration for ${resource.title}`}
+                      />
+                    </CardPreview>
                   </Link>
                 )}
                 <CardContent
                   className={`${resource.image ? 'ml-3' : ''} flex flex-col`}
                 >
                   <CardHeader>
-                    <Link href={resource.path}>
-                      <a
-                        onClick={() => {
-                          track('clicked resource', {
-                            resource: resource.path,
-                            linkType: 'text',
-                            location,
-                          })
-                        }}
-                        className="hover:text-blue-600 dark:hover:text-blue-300"
-                      >
-                        <h4 className="text-lg font-semibold leading-tight">
-                          <Textfit mode="multi" min={14} max={17}>
-                            {resource.title}
-                          </Textfit>
-                        </h4>
-                      </a>
+                    <Link
+                      href={resource.path}
+                      onClick={() => {
+                        track('clicked resource', {
+                          resource: resource.path,
+                          linkType: 'text',
+                          location,
+                        })
+                      }}
+                      className="hover:text-blue-600 dark:hover:text-blue-300"
+                    >
+                      <h3 className="text-lg font-semibold leading-tight">
+                        <Textfit mode="multi" min={13} max={17}>
+                          {resource.title}
+                        </Textfit>
+                      </h3>
                     </Link>
                   </CardHeader>
                   <CardMeta className="text-xs text-gray-600 dark:text-gray-300">

@@ -1,10 +1,8 @@
 import {NextApiRequest, NextApiResponse} from 'next'
-import {ACCESS_TOKEN_KEY} from 'utils/auth'
-import getTracer from 'utils/honeycomb-tracer'
-import {setupHttpTracing} from 'utils/tracing-js/dist/src/index'
-import {getTokenFromCookieHeaders} from 'utils/parse-server-cookie'
-
-const serverCookie = require('cookie')
+import getTracer from '@/utils/honeycomb-tracer'
+import {setupHttpTracing} from '@/utils/tracing-js/dist/src/index'
+import {getTokenFromCookieHeaders} from '@/utils/parse-server-cookie'
+import {ENCODED_CUSTOMER_IO_TRACKING_API_CREDENTIALS} from '@/lib/customer-io'
 const axios = require('axios')
 
 const tracer = getTracer('topic-api')
@@ -53,7 +51,7 @@ const cioTopicScore = async (req: NextApiRequest, res: NextApiResponse) => {
 
       const headers = {
         'content-type': 'application/json',
-        Authorization: `Basic ${process.env.CUSTOMER_IO_TRACK_API_BASIC}`,
+        Authorization: `Basic ${ENCODED_CUSTOMER_IO_TRACKING_API_CREDENTIALS}`,
       }
 
       let subscriber
@@ -115,11 +113,11 @@ const cioTopicScore = async (req: NextApiRequest, res: NextApiResponse) => {
 
         res.status(200).end()
       } else {
-        console.error('no subscriber was loaded')
+        console.debug('no subscriber was loaded')
         res.status(200).end()
       }
     } catch (error) {
-      console.error(error.message)
+      console.error(error)
       res.status(200).end()
     }
   } else {

@@ -20,6 +20,8 @@ module.exports = {
     '/logout',
     '/redirect',
     '/sale',
+    '/invoices',
+    '/server-sitemap.xml',
   ],
   robotsTxtOptions: {
     policies: [
@@ -28,25 +30,34 @@ module.exports = {
         disallow: '',
       },
       {
+        userAgent: 'ClaudeBot',
+        disallow: ['/q'],
+      },
+      {
+        userAgent: 'GPTBot',
+        disallow: ['/q'],
+      },
+      {
         userAgent: '*',
         allow: ['/'],
         disallow: [
           '/discord',
-          '/_next',
           '/purchase',
           '/404',
           '/ask',
           '/blank',
-          '/confirm/membership',
+          '/confirm',
           '/login',
           '/logout',
           '/redirect',
           '/sale',
+          '/invoices',
         ],
       },
     ],
     additionalSitemaps: [
-      'http://egghead-sitemaps.s3.amazonaws.com/sitemaps/sitemap.xml.gz',
+      'https://egghead-sitemaps.s3.amazonaws.com/sitemaps/sitemap.xml.gz',
+      'https://egghead.io/server-sitemap.xml',
       'https://egghead.io/tags-sitemap-0.xml',
       'https://egghead.io/tags-sitemap-1.xml',
       'https://egghead.io/tags-sitemap-2.xml',

@@ -1,6 +1,6 @@
 import groq from 'groq'
 
-import CtaCard from 'components/search/components/cta-card'
+import CtaCard from '@/components/search/components/cta-card'
 import SearchInstructorEssential from '../instructor-essential'
 
 const SearchLazarNikolov = ({instructor}: {instructor: any}) => {
@@ -45,7 +45,7 @@ export const LazarNikolovQuery = groq`
        byline,
        image,
        'background': images[label == 'feature-card-background'][0].url,
-       'instructor': collaborators[]->[role == 'instructor'][0]{
+       'instructor': collaborators[@->.role == 'instructor'][0]->{
          'name': person->.name
        },
      }

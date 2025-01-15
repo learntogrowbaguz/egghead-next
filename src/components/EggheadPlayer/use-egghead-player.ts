@@ -1,10 +1,10 @@
 import * as React from 'react'
-import cookies from 'utils/cookies'
-import {track} from 'utils/analytics'
-import getAccessTokenFromCookie from 'utils/get-access-token-from-cookie'
+import cookies from '@/utils/cookies'
+import analytics from '@/utils/analytics'
+import getAccessTokenFromCookie from '@/utils/get-access-token-from-cookie'
 import axios from 'axios'
 import {get, identity, isEmpty, pickBy} from 'lodash'
-import {LessonResource} from 'types'
+import {LessonResource} from '@/types'
 
 const getOptions = () =>
   getAccessTokenFromCookie()
@@ -97,13 +97,6 @@ const onProgress = async (
 
   lessonProgress[lesson.slug] = roundedProgress
   if (lesson.lesson_view_url) {
-    if (roundedProgress === 30) {
-      track('started lesson', {
-        lesson: lesson.slug,
-        tags: lesson.tags.map((tag: {slug: any}) => tag.slug),
-      })
-    }
-
     return await storeProgress(roundedProgress, lesson)
   } else {
     const segments = lessonProgress[lesson.slug] / 30
@@ -114,13 +107,12 @@ const onProgress = async (
   }
 }
 
-let emailCaptureCookie: any = {
-  watchCount: 0,
-}
+let emailCaptureCookie: number = 0
 
-const setEmailCaptureCookie = (captureCookie = {}) => {
-  cookies.set('egghead-email', captureCookie)
-  emailCaptureCookie = cookies.get('egghead-email')
+const setEmailCaptureCookie = (captureCookie = 0) => {
+  console.log(captureCookie)
+  cookies.set('egghead-watch-count', captureCookie)
+  emailCaptureCookie = cookies.get('egghead-watch-count')
 }
 
 const getOrCreateLessonView = async (
@@ -137,18 +129,18 @@ const getOrCreateLessonView = async (
 
 const trackPercentComplete = (lessonView: {series: any}) => {
   const series = lessonView.series
-  const percents = [0.1, 0.25, 0.5, 0.75]
+  const percents = [0.1, 0.25, 0.5, 0.75, 1]
   if (series && series.progress && series.published_lesson_count) {
     percents.forEach((percent) => {
       const trackPercent =
           Math.ceil(series.published_lesson_count * percent) ===
           series.progress.completed_lesson_count,
         percentCompleted = Math.floor(percent * 100)
-      if (trackPercent) {
-        track('progress in course', {
-          course: series.slug,
-          percent_completed: percentCompleted,
-        })
+      if (trackPercent && percentCompleted <= 75) {
+        analytics.events.engagementCourseProgress(series.slug, percentCompleted)
+      }
+      if (trackPercent && percentCompleted === 100) {
+        analytics.events.engagementCompletedCourse(series.slug)
       }
     })
   }
@@ -163,12 +155,9 @@ const trackStartingCourse = (lessonView: {
   const progress = series && lessonView.series.progress
 
   if (progress && progress.completed_lesson_count === 0) {
-    track('started course', {
-      first_lesson: lessonView.lesson_slug,
-      lesson_count: series.published_lesson_count,
-      course: lessonView.series.slug,
-    })
+    analytics.events.engagementStartCourse(lessonView.series.slug)
   }
+
   return lessonView
 }
 
@@ -191,10 +180,7 @@ const onEnded = async (lesson: {
   slug: any
   tags: any[]
 }) => {
-  setEmailCaptureCookie({
-    ...emailCaptureCookie,
-    watchCount: emailCaptureCookie.watchCount + 1,
-  })
+  setEmailCaptureCookie(emailCaptureCookie + 1)
 
   if (lesson.lesson_view_url) {
     return await onComplete(lesson)

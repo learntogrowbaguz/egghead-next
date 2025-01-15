@@ -1,8 +1,8 @@
 import * as React from 'react'
-import EmailConfirmation from 'components/pages/email-confirmation'
+import EmailConfirmation from '@/components/pages/email-confirmation'
 import getTracer from '../utils/honeycomb-tracer'
 import {GetServerSideProps} from 'next'
-import {setupHttpTracing} from 'utils/tracing-js/dist/src/index'
+import {setupHttpTracing} from '@/utils/tracing-js/dist/src/index'
 import useCio from '../hooks/use-cio'
 import Link from 'next/link'
 
@@ -22,7 +22,9 @@ export const getServerSideProps: GetServerSideProps = async function ({
   }
 }
 
-const Unsubscribed: React.FunctionComponent<{from: string}> = ({from}) => {
+const Unsubscribed: React.FunctionComponent<
+  React.PropsWithChildren<{from: string}>
+> = ({from}) => {
   const {subscriber, cioIdentify} = useCio()
   const subscriberId = subscriber?.id
 
@@ -48,10 +50,7 @@ const Unsubscribed: React.FunctionComponent<{from: string}> = ({from}) => {
       <h1>You've been unsubscribed from {from} emails.</h1>
       <p>
         If this was a mistake{' '}
-        <Link href={`/confirmed?to=${from}`}>
-          <a>click here</a>
-        </Link>
-        .
+        <Link href={`/confirmed?to=${from}`}>click here</Link>.
       </p>
       <p>
         If you need additional support, please email{' '}

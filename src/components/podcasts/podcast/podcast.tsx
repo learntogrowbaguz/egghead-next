@@ -1,7 +1,8 @@
 import React, {FunctionComponent} from 'react'
-import Markdown from 'react-markdown/with-html'
-import Image from 'next/image'
-import {PodcastResource} from 'types'
+import Markdown from 'react-markdown'
+import Image from 'next/legacy/image'
+import {PodcastResource} from '@/types'
+import rehypeRaw from 'rehype-raw'
 
 type PodcastProps = {
   podcast: PodcastResource
@@ -64,7 +65,7 @@ const LINKS = [
 
 const IMAGE_SIZE = 320
 
-const Podcast: FunctionComponent<PodcastProps> = ({
+const Podcast: FunctionComponent<React.PropsWithChildren<PodcastProps>> = ({
   podcast: {
     description,
     contributors,
@@ -122,9 +123,13 @@ const Podcast: FunctionComponent<PodcastProps> = ({
               ))}
             </div>
           </div>
-          {description && <Markdown allowDangerousHtml>{description}</Markdown>}
+          {description && (
+            <Markdown rehypePlugins={[rehypeRaw]}>{description}</Markdown>
+          )}
           {transcript && <h2>Transcript</h2>}
-          {transcript && <Markdown allowDangerousHtml>{transcript}</Markdown>}
+          {transcript && (
+            <Markdown rehypePlugins={[rehypeRaw]}>{transcript}</Markdown>
+          )}
         </div>
       </div>
     </div>

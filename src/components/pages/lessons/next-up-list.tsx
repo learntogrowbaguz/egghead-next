@@ -1,10 +1,10 @@
 import * as React from 'react'
 import {FunctionComponent} from 'react'
 import {Element, scroller} from 'react-scroll'
-import {LessonResource} from 'types'
+import {LessonResource} from '@/types'
 import {get} from 'lodash'
 import Link from 'next/link'
-import {track} from 'utils/analytics'
+import {track} from '@/utils/analytics'
 
 type NextUpListProps = {
   currentLessonSlug: string
@@ -12,11 +12,9 @@ type NextUpListProps = {
   nextToVideo: boolean
 }
 
-const NextUpList: FunctionComponent<NextUpListProps> = ({
-  nextUp,
-  currentLessonSlug,
-  nextToVideo,
-}) => {
+const NextUpList: FunctionComponent<
+  React.PropsWithChildren<NextUpListProps>
+> = ({nextUp, currentLessonSlug, nextToVideo}) => {
   const {nextUpData} = nextUp
   const [activeElement] = React.useState(currentLessonSlug)
   const scrollableNodeRef: any = React.createRef()
@@ -51,8 +49,10 @@ const NextUpList: FunctionComponent<NextUpListProps> = ({
               [],
             ).map((lesson: LessonResource) => lesson.slug)
             const completed = completedLessons.includes(lesson.slug)
+
             return (
               <li key={lesson.slug}>
+                {/* @ts-ignore */}
                 <Element name={lesson.slug} />
                 <div>
                   <Item
@@ -72,13 +72,15 @@ const NextUpList: FunctionComponent<NextUpListProps> = ({
   ) : null
 }
 
-const Item: FunctionComponent<{
-  lesson: any
-  active: boolean
-  className?: string
-  index: number
-  completed: boolean
-}> = ({lesson, className, index, completed, active = false, ...props}) => {
+const Item: FunctionComponent<
+  React.PropsWithChildren<{
+    lesson: any
+    active: boolean
+    className?: string
+    index: number
+    completed: boolean
+  }>
+> = ({lesson, className, index, completed, active = false, ...props}) => {
   const Item = () => (
     <div
       className={`group flex p-3 ${
@@ -105,18 +107,17 @@ const Item: FunctionComponent<{
   return active ? (
     <Item />
   ) : (
-    <Link href={lesson.path}>
-      <a
-        onClick={() => {
-          track(`clicked next up lesson`, {
-            lesson: lesson.slug,
-            location: 'sidebar',
-          })
-        }}
-        className="font-semibold"
-      >
-        <Item />
-      </a>
+    <Link
+      href={lesson.path}
+      onClick={() => {
+        track(`clicked next up lesson`, {
+          lesson: lesson.slug,
+          location: 'sidebar',
+        })
+      }}
+      className="font-semibold"
+    >
+      <Item />
     </Link>
   )
 }

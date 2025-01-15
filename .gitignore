@@ -6,6 +6,7 @@ node_modules
 .pnp.js
 .mdx-data
 
+
 # testing
 /coverage
 
@@ -35,3 +36,15 @@ yarn-error.log*
 
 .vercel
 .idea
+.env
+prisma/generated.schema.prisma
+/tsconfig.tsbuildinfo
+
+# yarn (https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored)
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

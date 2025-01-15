@@ -1,6 +1,6 @@
 import {authTokenPollingMachine} from '../auth-token-polling-machine'
 import {interpret} from 'xstate'
-import {SimulatedClock} from 'utils/test/simulated-clock'
+import {SimulatedClock} from '@/utils/test/simulated-clock'
 
 test('it starts polling immediately', () => {
   const pollingService = interpret(
@@ -52,7 +52,6 @@ test('it assigns the authToken to context when received', (done) => {
     }
 
     if (state.matches('authTokenRetrieved')) {
-      // eslint-disable-next-line jest/no-conditional-expect
       expect(state.context.authToken).toEqual('auth123')
       done()
     }
@@ -99,9 +98,7 @@ test('polls several times for the value', (done) => {
   ).onTransition((state) => {
     // done when we've reached the authTokenRetrieved state
     if (state.matches('authTokenRetrieved')) {
-      // eslint-disable-next-line jest/no-conditional-expect
       expect(state.context.pollingCount).toEqual(3)
-      // eslint-disable-next-line jest/no-conditional-expect
       expect(state.context.authToken).toEqual('auth123')
       done()
     }

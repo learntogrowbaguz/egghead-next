@@ -1,8 +1,8 @@
 import React from 'react'
 import {get} from 'lodash'
 import SearchCuratedEssential from '../curated-essential'
-import {CardResource} from 'types'
-import {VerticalResourceCard} from 'components/card/verticle-resource-card'
+import {CardResource} from '@/types'
+import {VerticalResourceCard} from '@/components/card/verticle-resource-card'
 import {HorizontalResourceCard} from '../../../card/horizontal-resource-card'
 import groq from 'groq'
 
@@ -83,7 +83,9 @@ const SearchNext = ({topic}: any) => {
   )
 }
 
-const EcommerceCTA: React.FC<{location: string}> = ({location}) => {
+const EcommerceCTA: React.FC<React.PropsWithChildren<{location: string}>> = ({
+  location,
+}) => {
   const resource: CardResource = {
     slug: 'create-an-ecommerce-store-with-next-js-and-stripe-checkout',
     id: 'portfolioProject',
@@ -122,7 +124,7 @@ export const nextPageQuery = groq`
       byline,
       image,
       'background': images[label == 'feature-card-background'][0].url,
-      'instructor': collaborators[]->[role == 'instructor'][0]{
+      'instructor': collaborators[@->.role == 'instructor'][0]->{
       'name': person->.name
     },
    }
@@ -147,7 +149,7 @@ export const nextPageQuery = groq`
       byline,
       image,
       'background': images[label == 'feature-card-background'][0].url,
-      'instructor': collaborators[]->[role == 'instructor'][0]{
+      'instructor': collaborators[@->.role == 'instructor'][0]->{
       'name': person->.name
     },
    }
@@ -161,7 +163,7 @@ export const nextPageQuery = groq`
       byline,
       image,
       'background': images[label == 'feature-card-background'][0].url,
-      'instructor': collaborators[]->[role == 'instructor'][0]{
+      'instructor': collaborators[@->.role == 'instructor'][0]->{
       'name': person->.name
     },
    }

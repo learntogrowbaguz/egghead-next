@@ -1,10 +1,10 @@
 import * as React from 'react'
-import Image from 'next/image'
-import Spinner from 'components/spinner'
-import usePurchaseAndPlay from 'hooks/use-purchase-and-play'
+import Image from 'next/legacy/image'
+import Spinner from '@/components/spinner'
+import usePurchaseAndPlay from '@/hooks/use-purchase-and-play'
 import axios from 'axios'
-import {track} from 'utils/analytics'
-import {useViewer} from 'context/viewer-context'
+import {track} from '@/utils/analytics'
+import {useViewer} from '@/context/viewer-context'
 import {LessonResource} from '../../../../types'
 import {useRouter} from 'next/router'
 
@@ -16,7 +16,9 @@ type HeaderProps = {
 type ConfirmMembershipProps = {
   sessionId: string
   viewLesson: Function
-  lesson: LessonResource
+  lesson: {
+    slug: string
+  }
 }
 
 const Illustration = () => (
@@ -33,7 +35,7 @@ const Illustration = () => (
   </div>
 )
 
-const Heading: React.FC = ({children}) => {
+const Heading: React.FC<React.PropsWithChildren<unknown>> = ({children}) => {
   return (
     <h1 className="text-xl font-medium leading-tight text-center sm:leading-tighter sm:text-2xl">
       {children}
@@ -41,11 +43,16 @@ const Heading: React.FC = ({children}) => {
   )
 }
 
-const PrimaryMessage: React.FC = ({children}) => {
+const PrimaryMessage: React.FC<React.PropsWithChildren<unknown>> = ({
+  children,
+}) => {
   return <div className="max-w-md">{children}</div>
 }
 
-const Header: React.FC<HeaderProps> = ({heading, primaryMessage}) => {
+const Header: React.FC<React.PropsWithChildren<HeaderProps>> = ({
+  heading,
+  primaryMessage,
+}) => {
   return (
     <header className="flex flex-col items-center justify-center w-full h-full p-5">
       <div className="flex flex-col items-center justify-center space-y-6">
@@ -57,7 +64,9 @@ const Header: React.FC<HeaderProps> = ({heading, primaryMessage}) => {
   )
 }
 
-const IconMail: React.FC<{className: string}> = ({className}) => {
+const IconMail: React.FC<React.PropsWithChildren<{className: string}>> = ({
+  className,
+}) => {
   return (
     <div className={className}>
       <svg
@@ -82,7 +91,7 @@ const IconMail: React.FC<{className: string}> = ({className}) => {
   )
 }
 
-const Callout: React.FC = ({children}) => {
+const Callout: React.FC<React.PropsWithChildren<unknown>> = ({children}) => {
   return (
     <div className="inline-flex items-center w-full p-4 mb-5 space-x-3 border border-gray-200 rounded-lg sm:p-5">
       {children}
@@ -90,11 +99,15 @@ const Callout: React.FC = ({children}) => {
   )
 }
 
-const ExistingMemberConfirmation: React.FC<{
-  session: any
-  viewLesson: Function
-  lesson: LessonResource
-}> = ({session, viewLesson, lesson}) => {
+const ExistingMemberConfirmation: React.FC<
+  React.PropsWithChildren<{
+    session: any
+    viewLesson: Function
+    lesson: {
+      slug: string
+    }
+  }>
+> = ({session, viewLesson, lesson}) => {
   return (
     <>
       <Header
@@ -129,12 +142,12 @@ const ExistingMemberConfirmation: React.FC<{
   )
 }
 
-const NewMemberConfirmation: React.FC<{
-  session: any
-  currentState: any
-  viewLesson: Function
-  lesson: LessonResource
-}> = ({session, currentState, viewLesson, lesson}) => {
+const NewMemberConfirmation: React.FC<
+  React.PropsWithChildren<{
+    session: any
+    currentState: any
+  }>
+> = ({session, currentState}) => {
   return (
     <Header
       heading={<>Thank you so much for joining egghead! </>}
@@ -159,43 +172,13 @@ const NewMemberConfirmation: React.FC<{
               </p>
             </>
           )}
-          {currentState.matches('authTokenRetrieved') && (
-            <div className="flex flex-col items-center">
-              <Callout>
-                <p className="w-full text-lg text-center">
-                  <span role="img" aria-label="party popper">
-                    🎉
-                  </span>{' '}
-                  Your egghead membership is ready to go!
-                </p>
-              </Callout>
-              <p className="max-w-lg mx-auto text-lg text-center">
-                We've charged your credit card{' '}
-                <strong>${session.amount} for an egghead membership</strong> and
-                sent a receipt to <strong>{session.email}</strong>. Please check
-                your inbox to <strong>confirm your email address</strong>.
-              </p>
-              <button
-                className="mt-8 px-10 py-4 h-[60px] font-medium flex justify-center items-center text-white transition-all duration-300 ease-in-out bg-blue-600 rounded-md hover:bg-blue-700 hover:scale-105 self-center"
-                onClick={(_e) => {
-                  track('clicked watch lesson', {
-                    location: 'pay and play on lesson',
-                    lesson: lesson.slug,
-                  })
-                  viewLesson()
-                }}
-              >
-                Watch this Lesson
-              </button>
-            </div>
-          )}
         </>
       }
     />
   )
 }
 
-const LoadingSession: React.FC<{}> = () => {
+const LoadingSession: React.FC<React.PropsWithChildren<{}>> = () => {
   return (
     <Header
       heading={<>Thank you so much for joining egghead! </>}
@@ -239,11 +222,9 @@ const NoSessionFound = () => {
   )
 }
 
-const ConfirmMembership: React.FC<ConfirmMembershipProps> = ({
-  lesson,
-  sessionId,
-  viewLesson,
-}) => {
+const ConfirmMembership: React.FC<
+  React.PropsWithChildren<ConfirmMembershipProps>
+> = ({lesson, sessionId, viewLesson}) => {
   const router = useRouter()
   const [alreadyAuthenticated, currentState] = usePurchaseAndPlay()
   const [session, setSession] = React.useState<any>()
@@ -283,19 +264,14 @@ const ConfirmMembership: React.FC<ConfirmMembershipProps> = ({
 
   return session ? (
     <div className="w-full max-w-screen-lg mx-auto space-y-16 text-white dark:text-white">
-      {alreadyAuthenticated ? (
+      {alreadyAuthenticated || currentState.matches('authTokenRetrieved') ? (
         <ExistingMemberConfirmation
           lesson={lesson}
           session={session}
           viewLesson={cleanUrlAndViewLesson}
         />
       ) : (
-        <NewMemberConfirmation
-          lesson={lesson}
-          session={session}
-          currentState={currentState}
-          viewLesson={cleanUrlAndViewLesson}
-        />
+        <NewMemberConfirmation session={session} currentState={currentState} />
       )}
     </div>
   ) : (

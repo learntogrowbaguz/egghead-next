@@ -1,14 +1,14 @@
 import * as React from 'react'
-import useCio from 'hooks/use-cio'
+import useCio from '@/hooks/use-cio'
 import Link from 'next/link'
-import {Card} from 'components/card'
+import {Card} from '@/components/card'
 import Markdown from 'react-markdown'
 import {SurveyQuestion, surveyReducer, SurveyState} from './survey-reducer'
-import {HeaderButtonShapedLink} from 'components/app/header/header-button-shaped-link'
+import {HeaderButtonShapedLink} from '@/components/app/header/header-button-shaped-link'
 
-const QuestionHeading: React.FunctionComponent<{question: SurveyQuestion}> = ({
-  question,
-}) => {
+const QuestionHeading: React.FunctionComponent<
+  React.PropsWithChildren<{question: SurveyQuestion}>
+> = ({question}) => {
   return (
     <>
       <h2 className="text-xl mb-3 font-bold dark:text-gray-100 text-gray-700">
@@ -29,7 +29,7 @@ type HeaderButtonProps = {
   variant?: string
 }
 
-const HeaderButtonCTA: React.FC<HeaderButtonProps> = ({
+const HeaderButtonCTA: React.FC<React.PropsWithChildren<HeaderButtonProps>> = ({
   subscriberRequired = false,
   initialState,
   className,
@@ -81,15 +81,14 @@ const HeaderButtonCTA: React.FC<HeaderButtonProps> = ({
           <div>
             <QuestionHeading question={state.question} />
             {state.question.url && (
-              <Link href={state.question.url}>
-                <a
-                  onClick={() => {
-                    onAnswer('maybe')
-                  }}
-                  className="inline-flex justify-center items-center px-5 py-3 rounded-md bg-blue-600 text-white transition-all hover:bg-blue-700 ease-in-out duration-200"
-                >
-                  {state.question.button_label}
-                </a>
+              <Link
+                href={state.question.url}
+                onClick={() => {
+                  onAnswer('maybe')
+                }}
+                className="inline-flex justify-center items-center px-5 py-3 rounded-md bg-blue-600 text-white transition-all hover:bg-blue-700 ease-in-out duration-200"
+              >
+                {state.question.button_label}
               </Link>
             )}
           </div>

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import Markdown from 'react-markdown'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
+import rehypeRaw from 'rehype-raw'
 
 type TestimonialsProps = {
   testimonials: {
@@ -13,9 +14,9 @@ type TestimonialsProps = {
   }[]
 }
 
-const Testimonials: React.FunctionComponent<TestimonialsProps> = ({
-  testimonials,
-}) => {
+const Testimonials: React.FunctionComponent<
+  React.PropsWithChildren<TestimonialsProps>
+> = ({testimonials}) => {
   return (
     <div className="max-w-screen-lg grid md:grid-cols-2 gap-10 py-24 border-t dark:border-gray-800 border-gray-100">
       {testimonials.map((testimonial: any) => {
@@ -23,7 +24,7 @@ const Testimonials: React.FunctionComponent<TestimonialsProps> = ({
         return (
           <div className="flex flex-col items-center" key={author.name}>
             <div className="text-lg font-medium leading-tight text-center">
-              <Markdown allowDangerousHtml={true}>{praise}</Markdown>
+              <Markdown rehypePlugins={[rehypeRaw]}>{praise}</Markdown>
             </div>
             <div className="flex items-center space-x-2 pt-4">
               <Image

@@ -1,8 +1,11 @@
 import {NextApiRequest, NextApiResponse} from 'next'
-import getTracer from 'utils/honeycomb-tracer'
-import {setupHttpTracing} from 'utils/tracing-js/dist/src'
-import {CIO_IDENTIFIER_KEY} from 'config'
-import {sleep} from '../../../../utils/sleep'
+import getTracer from '@/utils/honeycomb-tracer'
+import {setupHttpTracing} from '@/utils/tracing-js/dist/src'
+import {CIO_IDENTIFIER_KEY} from '@/config'
+import {ENCODED_CUSTOMER_IO_TRACKING_API_CREDENTIALS} from '@/lib/customer-io'
+import {inngest} from '@/inngest/inngest.server'
+import {SEND_SLACK_MESSAGE_EVENT} from '@/inngest/events/send-slack-message'
+import {reportCioApiError} from '@/utils/cio/report-cio-api-error'
 
 const serverCookie = require('cookie')
 const axios = require('axios')
@@ -28,14 +31,16 @@ const cioIdentify = async (req: NextApiRequest, res: NextApiResponse) => {
 
       const headers = {
         'content-type': 'application/json',
-        Authorization: `Basic ${process.env.CUSTOMER_IO_TRACK_API_BASIC}`,
+        Authorization: `Basic ${ENCODED_CUSTOMER_IO_TRACKING_API_CREDENTIALS}`,
       }
 
-      await axios.put(
-        `https://track.customer.io/api/v1/customers/${id}`,
-        {...options, _update: true},
-        {headers},
-      )
+      await axios
+        .put(
+          `https://track.customer.io/api/v1/customers/${id}`,
+          {...options, _update: true},
+          {headers},
+        )
+        .catch(() => {})
 
       const cioCookie = serverCookie.serialize(CIO_IDENTIFIER_KEY, id, {
         secure: process.env.NODE_ENV === 'production',
@@ -51,13 +56,17 @@ const cioIdentify = async (req: NextApiRequest, res: NextApiResponse) => {
         })
         .then(({data}: {data: any}) => data.customer)
         .catch((error: any) => {
-          console.error(error)
+          // console.error(error)
+          return {}
         })
 
       res.setHeader('Set-Cookie', cioCookie)
       res.status(200).json(customer)
-    } catch (error) {
-      console.error(error.message)
+    } catch (error: any) {
+      if (error.response.status !== 404) {
+        await reportCioApiError(error)
+      }
+
       res.status(200).end()
     }
   } else {

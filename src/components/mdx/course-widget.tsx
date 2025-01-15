@@ -1,6 +1,6 @@
 import * as React from 'react'
 import Link from 'next/link'
-import {convertTimeToMins} from 'utils/time-utils'
+import {convertTimeToMins} from '@/utils/time-utils'
 import {find} from 'lodash'
 
 const PlayIcon = () => (
@@ -20,7 +20,9 @@ const PlayIcon = () => (
   </svg>
 )
 
-const CourseWidget: React.FC<{course: any; cta?: string}> = ({course, cta}) => {
+const CourseWidget: React.FC<
+  React.PropsWithChildren<{course: any; cta?: string}>
+> = ({course, cta}) => {
   const {title, path, lessons, instructor, duration, image_thumb_url} = course
   return (
     <div className="sm:grid grid-cols-2 dark:bg-gray-1000 bg-gray-100 bg-opacity-80 dark:bg-opacity-100 rounded-lg overflow-hidden">
@@ -37,15 +39,13 @@ const CourseWidget: React.FC<{course: any; cta?: string}> = ({course, cta}) => {
             course
           </p>
           <h2 className="text-xl font-medium leading-tight dark:text-white text-black">
-            <Link href={path}>
-              <a className="group">
-                <span className="group-hover:underline">{title}</span>{' '}
-                {instructor?.full_name && (
-                  <span className="text-lg dark:text-gray-400 text-gray-500 font-normal">
-                    – by {instructor.full_name}
-                  </span>
-                )}
-              </a>
+            <Link href={path} className="group">
+              <span className="group-hover:underline">{title}</span>{' '}
+              {instructor?.full_name && (
+                <span className="text-lg dark:text-gray-400 text-gray-500 font-normal">
+                  – by {instructor.full_name}
+                </span>
+              )}
             </Link>
           </h2>
         </div>

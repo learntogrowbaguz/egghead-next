@@ -1,20 +1,20 @@
 import React from 'react'
 import {NextSeo} from 'next-seo'
 import {find, get} from 'lodash'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import groq from 'groq'
 import Topic from '../../components/topic'
 import reactPageData from './react-page-data'
-import ExternalTrackedLink from 'components/external-tracked-link'
-import VideoCard from 'components/pages/home/video-card'
-import {VerticalResourceCollectionCard} from 'components/card/vertical-resource-collection-card'
-import {VerticalResourceCard} from 'components/card/new-vertical-resource-card'
+import ExternalTrackedLink from '@/components/external-tracked-link'
+import VideoCard from '@/components/pages/home/video-card'
+import {VerticalResourceCollectionCard} from '@/components/card/vertical-resource-collection-card'
+import {VerticalResourceCard} from '@/components/card/new-vertical-resource-card'
 import {ThreeLevels} from '../curated-essential'
-import Grid from 'components/grid'
+import Grid from '@/components/grid'
 
 const SearchReact = ({topic}: any) => {
   const location = 'react landing'
-  const description = `Life is too short for lonnnnnng boring videos. Learn React using the best screencast tutorial videos online.`
+  const description = `Life is too short for lonnnnnng boring videos. Learn React using the best screencast tutorial videos online led by working professionals that learn in public.`
   const title = `In-Depth Up-to-Date React Tutorials for ${new Date().getFullYear()}`
 
   const beginner: any = find(reactPageData, {id: 'beginner'})
@@ -74,26 +74,6 @@ You can find courses below curated just for you whether you're looking for a par
 
 `}
         </Topic>
-        <ExternalTrackedLink
-          eventName="clicked epic react banner"
-          params={{location}}
-          className="block md:col-span-4 w-full h-full overflow-hidden border-0 border-gray-100 relative text-center"
-          href="https://epicreact.dev"
-          target="_blank"
-          rel="noopener"
-        >
-          <div className="overflow-hidden flex items-center justify-center">
-            <Image
-              priority
-              quality={100}
-              width={417}
-              height={463}
-              alt="Get Really Good at React on EpicReact.dev by Kent C. Dodds"
-              className="hover:scale-[102%] ease-in-out duration-500"
-              src="https://res.cloudinary.com/dg3gyk0gu/image/upload/v1626109728/epic-react/default-banners/banner-react-page_2x.jpg"
-            />
-          </div>
-        </ExternalTrackedLink>
       </div>
       <ThreeLevels
         beginner={beginner}
@@ -213,7 +193,7 @@ export const reactPageQuery = groq`
        byline,
        image,
        'background': images[label == 'feature-card-background'][0].url,
-       'instructor': collaborators[]->[role == 'instructor'][0]{
+       'instructor': collaborators[@->.role == 'instructor'][0]->{
          'name': person->.name
        },
      }

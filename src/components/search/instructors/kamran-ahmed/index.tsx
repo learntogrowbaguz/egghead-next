@@ -1,12 +1,12 @@
 import React from 'react'
 import SearchInstructorEssential from '../instructor-essential'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import {get} from 'lodash'
 import Link from 'next/link'
 import groq from 'groq'
-import {bpMinMD} from 'utils/breakpoints'
-import {track} from 'utils/analytics'
-import ExternalTrackedLink from 'components/external-tracked-link'
+import {bpMinMD} from '@/utils/breakpoints'
+import {track} from '@/utils/analytics'
+import ExternalTrackedLink from '@/components/external-tracked-link'
 
 export default function SearchKamranAhmed({instructor}: {instructor: any}) {
   const combinedInstructor = {...instructor}
@@ -37,17 +37,16 @@ export const kamranAhmedQuery = groq`*[_type == 'resource' && slug.current == "k
     	path,
       byline,
     	image,
-      'instructor': collaborators[]->[role == 'instructor'][0]{
+      'instructor': collaborators[@->.role == 'instructor'][0]->{
       	'name': person->.name
     	},
     }
   },
 }`
 
-const FeaturedTypescriptCourse: React.FC<{location: string; resource: any}> = ({
-  location,
-  resource,
-}) => {
+const FeaturedTypescriptCourse: React.FC<
+  React.PropsWithChildren<{location: string; resource: any}>
+> = ({location, resource}) => {
   const {path, title, byline, description, image, background} = resource
   return (
     <ExternalTrackedLink
@@ -62,42 +61,40 @@ const FeaturedTypescriptCourse: React.FC<{location: string; resource: any}> = ({
           <div className="space-y-5 mx-auto flex items-center justify-center max-w-screen-xl">
             <div className="flex flex-col items-center justify-center sm:space-x-5 sm:space-y-0 space-y-5 gap-10">
               <div className="flex-shrink-0">
-                <Link href={path}>
-                  <a
-                    tabIndex={-1}
-                    onClick={() =>
-                      track('clicked jumbotron resource', {
-                        resource: path,
-                        linkType: 'image',
-                      })
-                    }
-                  >
-                    <Image
-                      quality={100}
-                      src={get(image, 'src', image)}
-                      width={250}
-                      height={250}
-                      alt={get(image, 'alt', `illustration for ${title}`)}
-                    />
-                  </a>
+                <Link
+                  href={path}
+                  tabIndex={-1}
+                  onClick={() =>
+                    track('clicked jumbotron resource', {
+                      resource: path,
+                      linkType: 'image',
+                    })
+                  }
+                >
+                  <Image
+                    quality={100}
+                    src={get(image, 'src', image)}
+                    width={250}
+                    height={250}
+                    alt={get(image, 'alt', `illustration for ${title}`)}
+                  />
                 </Link>
               </div>
               <div className="flex flex-col sm:items-start items-center">
-                <h2 className="text-xs text-gray-900 dark:text-white  uppercase font-semibold mb-2">
+                <p className="text-xs text-gray-900 dark:text-white  uppercase font-semibold mb-2">
                   {byline}
-                </h2>
-                <Link href={path}>
-                  <a
-                    className="text-xl font-extrabold leading-tighter text-gray-900 dark:text-white hover:text-blue-300"
-                    onClick={() =>
-                      track('clicked jumbotron resource', {
-                        resource: path,
-                        linkType: 'text',
-                      })
-                    }
-                  >
-                    <h1>{title}</h1>
-                  </a>
+                </p>
+                <Link
+                  href={path}
+                  className="text-xl font-extrabold leading-tighter text-gray-900 dark:text-white hover:text-blue-300"
+                  onClick={() =>
+                    track('clicked jumbotron resource', {
+                      resource: path,
+                      linkType: 'text',
+                    })
+                  }
+                >
+                  <h2>{title}</h2>
                 </Link>
                 <p className="mt-4 text-gray-900 dark:text-white">
                   {description}

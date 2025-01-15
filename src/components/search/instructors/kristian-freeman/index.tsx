@@ -1,13 +1,13 @@
 import React from 'react'
 import SearchInstructorEssential from '../instructor-essential'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import {get} from 'lodash'
 import Link from 'next/link'
 import groq from 'groq'
-import {bpMinMD} from 'utils/breakpoints'
-import {track} from 'utils/analytics'
-import ExternalTrackedLink from 'components/external-tracked-link'
-import {HorizontalResourceCard} from 'components/card/horizontal-resource-card'
+import {bpMinMD} from '@/utils/breakpoints'
+import {track} from '@/utils/analytics'
+import ExternalTrackedLink from '@/components/external-tracked-link'
+import {HorizontalResourceCard} from '@/components/card/horizontal-resource-card'
 
 export default function SearchKristianFreeman({instructor}: {instructor: any}) {
   const combinedInstructor = {...instructor}
@@ -23,17 +23,22 @@ export default function SearchKristianFreeman({instructor}: {instructor: any}) {
           <FeaturedCourse resource={primaryCourse} location={location} />
         }
       />
-      <section className="flex md:flex-row flex-col max-w-screen-xl mx-auto gap-3 px-5 md:px-0">
-        <HorizontalResourceCard
-          resource={secondaryCourse}
-          location={location}
-          className="md:w-3/5"
-        />
-        <HorizontalResourceCard
-          resource={tertiaryCourse}
-          location={location}
-          className="md:w-3/5"
-        />
+      <section>
+        <h2 className="sm:px-5 px-3 my-4 lg:text-2xl sm:text-xl text-lg dark:text-white font-semibold leading-tight">
+          Featured Courses
+        </h2>
+        <div className="flex md:flex-row flex-col max-w-screen-xl mx-auto gap-3 px-5 md:px-0">
+          <HorizontalResourceCard
+            resource={secondaryCourse}
+            location={location}
+            className="md:w-3/5"
+          />
+          <HorizontalResourceCard
+            resource={tertiaryCourse}
+            location={location}
+            className="md:w-3/5"
+          />
+        </div>
       </section>
     </div>
   )
@@ -48,17 +53,16 @@ export const kristianFreemanQuery = groq`*[_type == 'resource' && slug.current =
       byline,
     	image,
       'background': images[label == 'feature-card-background'][0].url,
-      'instructor': collaborators[]->[role == 'instructor'][0]{
+      'instructor': collaborators[@->.role == 'instructor'][0]->{
       	'name': person->.name
     	},
     }
   },
 }`
 
-const FeaturedCourse: React.FC<{location: string; resource: any}> = ({
-  location,
-  resource,
-}) => {
+const FeaturedCourse: React.FC<
+  React.PropsWithChildren<{location: string; resource: any}>
+> = ({location, resource}) => {
   const {path, title, byline, description, image} = resource
   return (
     <ExternalTrackedLink
@@ -74,42 +78,40 @@ const FeaturedCourse: React.FC<{location: string; resource: any}> = ({
           <div className="space-y-5 mx-auto flex items-center justify-center max-w-screen-xl">
             <div className="flex flex-col items-center justify-center sm:space-x-5 sm:space-y-0 space-y-5 gap-10 mt-10">
               <div className="flex-shrink-0">
-                <Link href={path}>
-                  <a
-                    tabIndex={-1}
-                    onClick={() =>
-                      track('clicked jumbotron resource', {
-                        resource: path,
-                        linkType: 'image',
-                      })
-                    }
-                  >
-                    <Image
-                      quality={100}
-                      src={get(image, 'src', image)}
-                      width={250}
-                      height={250}
-                      alt={get(image, 'alt', `illustration for ${title}`)}
-                    />
-                  </a>
+                <Link
+                  href={path}
+                  tabIndex={-1}
+                  onClick={() =>
+                    track('clicked jumbotron resource', {
+                      resource: path,
+                      linkType: 'image',
+                    })
+                  }
+                >
+                  <Image
+                    quality={100}
+                    src={get(image, 'src', image)}
+                    width={250}
+                    height={250}
+                    alt={get(image, 'alt', `illustration for ${title}`)}
+                  />
                 </Link>
               </div>
               <div className="flex flex-col sm:items-start items-center">
-                <h2 className="text-xs text-gray-700 dark:text-gray-300 text-opacity-80 uppercase font-semibold mb-2">
+                <p className="text-xs text-gray-700 dark:text-gray-300 text-opacity-80 uppercase font-semibold mb-2">
                   {byline}
-                </h2>
-                <Link href={path}>
-                  <a
-                    className="text-xl font-extrabold leading-tighter text-gray-900 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-300"
-                    onClick={() =>
-                      track('clicked jumbotron resource', {
-                        resource: path,
-                        linkType: 'text',
-                      })
-                    }
-                  >
-                    <h1>{title}</h1>
-                  </a>
+                </p>
+                <Link
+                  href={path}
+                  className="text-xl font-extrabold leading-tighter text-gray-900 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-300"
+                  onClick={() =>
+                    track('clicked jumbotron resource', {
+                      resource: path,
+                      linkType: 'text',
+                    })
+                  }
+                >
+                  <h2>{title}</h2>
                 </Link>
                 <p className="mt-4 text-gray-700 dark:text-gray-300">
                   {description}

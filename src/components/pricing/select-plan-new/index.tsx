@@ -1,24 +1,28 @@
 import {get, filter} from 'lodash'
 import * as React from 'react'
 import slugify from 'slugify'
-import BestValueStamp from 'components/pricing/select-plan-new/assets/best-value-stamp'
-import ColoredBackground from 'components/pricing/select-plan-new/assets/colored-background'
+import BestValueStamp from '@/components/pricing/select-plan-new/assets/best-value-stamp'
+import ColoredBackground from '@/components/pricing/select-plan-new/assets/colored-background'
 import {keys} from 'lodash'
-import Spinner from 'components/spinner'
-import Countdown from 'components/pricing/countdown'
+import Spinner from '@/components/spinner'
+import Countdown from '@/components/pricing/countdown'
 import {fromUnixTime} from 'date-fns'
-import {Coupon, PricingPlan} from 'types'
+import {Coupon, PricingPlan} from '@/types'
 
-const PlanTitle: React.FunctionComponent = ({children}) => (
+const PlanTitle: React.FunctionComponent<React.PropsWithChildren<unknown>> = ({
+  children,
+}) => (
   <h2 className="text-xl font-bold text-gray-900 dark:text-white">
     {children}
   </h2>
 )
 
-export const PlanPrice: React.FunctionComponent<{
-  plan: any
-  pricesLoading: boolean
-}> = ({plan, pricesLoading}) => {
+export const PlanPrice: React.FunctionComponent<
+  React.PropsWithChildren<{
+    plan: any
+    pricesLoading: boolean
+  }>
+> = ({plan, pricesLoading}) => {
   const {price, price_discounted} = plan
   const priceToDisplay = price_discounted || price
   const discount_percentage = price_discounted
@@ -61,12 +65,14 @@ export const PlanPrice: React.FunctionComponent<{
   )
 }
 
-const PlanQuantitySelect: React.FunctionComponent<{
-  quantity: number
-  onQuantityChanged: any
-  plan: any
-  pricesLoading: boolean
-}> = ({quantity, onQuantityChanged}) => {
+const PlanQuantitySelect: React.FunctionComponent<
+  React.PropsWithChildren<{
+    quantity: number
+    onQuantityChanged: any
+    plan: any
+    pricesLoading: boolean
+  }>
+> = ({quantity, onQuantityChanged}) => {
   return (
     <div className="flex flex-col items-center space-y-2">
       <label className="flex items-center">
@@ -84,12 +90,14 @@ const PlanQuantitySelect: React.FunctionComponent<{
   )
 }
 
-const PlanIntervalsSwitch: React.FunctionComponent<{
-  planTypes: any[]
-  disabled: boolean
-  currentPlan: any
-  setCurrentPlan: (plan: any) => void
-}> = ({planTypes, currentPlan, setCurrentPlan, disabled}) => {
+const PlanIntervalsSwitch: React.FunctionComponent<
+  React.PropsWithChildren<{
+    planTypes: any[]
+    disabled: boolean
+    currentPlan: any
+    setCurrentPlan: (plan: any) => void
+  }>
+> = ({planTypes, currentPlan, setCurrentPlan, disabled}) => {
   const plansToRender = disabled ? [currentPlan] : planTypes
   return (
     <ul className="flex">
@@ -128,16 +136,17 @@ const PlanIntervalsSwitch: React.FunctionComponent<{
 
 const DEFAULT_FEATURES = [
   'Full access to all the premium courses',
-  'Download courses for offline viewing',
   'Closed captions for every video',
   'Commenting and support',
   'Enhanced Transcripts',
   'RSS course feeds',
 ]
 
-const PlanFeatures: React.FunctionComponent<{
-  planFeatures?: string[]
-}> = ({planFeatures = DEFAULT_FEATURES}) => {
+const PlanFeatures: React.FunctionComponent<
+  React.PropsWithChildren<{
+    planFeatures?: string[]
+  }>
+> = ({planFeatures = DEFAULT_FEATURES}) => {
   const CheckIcon = () => (
     <svg
       className="flex-shrink-0 inline-block mt-1 text-blue-500"
@@ -167,12 +176,14 @@ const PlanFeatures: React.FunctionComponent<{
   )
 }
 
-const GetAccessButton: React.FunctionComponent<{
-  label: string
-  handleClick: () => void
-  loaderOn: boolean
-  pricesLoading: boolean
-}> = ({label, handleClick, loaderOn, pricesLoading}) => {
+const GetAccessButton: React.FunctionComponent<
+  React.PropsWithChildren<{
+    label: string
+    handleClick: () => void
+    loaderOn: boolean
+    pricesLoading: boolean
+  }>
+> = ({label, handleClick, loaderOn, pricesLoading}) => {
   return (
     <button
       disabled={pricesLoading}
@@ -196,6 +207,41 @@ const GetAccessButton: React.FunctionComponent<{
   )
 }
 
+const PlanPercentageOff: React.FunctionComponent<
+  React.PropsWithChildren<{interval: string}>
+> = ({interval}) => {
+  switch (interval) {
+    case 'Yearly':
+      return (
+        <div className="max-w-2xl pt-4 text-sm font-light leading-tight text-gray-700 dark:text-gray-200">
+          Best Value
+        </div>
+      )
+    case 'Quarterly':
+      return (
+        <div className="max-w-2xl pt-4 text-sm font-light leading-tight text-gray-700 dark:text-gray-200">
+          Save{' '}
+          <strong className="dark:bg-amber-400 dark:text-black bg-blue-600 text-white px-px font-semibold">
+            29%
+          </strong>{' '}
+          with yearly billing
+        </div>
+      )
+    case 'Monthly':
+      return (
+        <div className="max-w-2xl pt-4 text-sm font-light leading-tight text-gray-700 dark:text-gray-200">
+          Save{' '}
+          <strong className="dark:bg-amber-400 dark:text-black bg-blue-600 text-white px-px font-semibold">
+            50%
+          </strong>{' '}
+          with yearly billing
+        </div>
+      )
+    default:
+      return null
+  }
+}
+
 type SelectPlanProps = {
   prices: any
   pricesLoading: boolean
@@ -212,7 +258,9 @@ type SelectPlanProps = {
   isPPP: boolean
 }
 
-const SelectPlanNew: React.FunctionComponent<SelectPlanProps> = ({
+const SelectPlanNew: React.FunctionComponent<
+  React.PropsWithChildren<SelectPlanProps>
+> = ({
   quantityAvailable = true,
   handleClickGetAccess,
   pricesLoading,
@@ -236,7 +284,7 @@ const SelectPlanNew: React.FunctionComponent<SelectPlanProps> = ({
         <PlanTitle>{currentPlan?.name}</PlanTitle>
         {!isPPP && appliedCoupon?.coupon_expires_at && !pricesLoading && (
           <Countdown
-            label="Spring sale – Price goes up in:"
+            label="Save on Yearly Memberships Price goes up in:"
             date={fromUnixTime(appliedCoupon.coupon_expires_at)}
           />
         )}
@@ -257,6 +305,7 @@ const SelectPlanNew: React.FunctionComponent<SelectPlanProps> = ({
             </div>
           )}
         </div>
+        {!appliedCoupon && <PlanPercentageOff interval={currentPlan.name} />}
         {quantityAvailable && (
           <div className="my-4">
             <PlanQuantitySelect
@@ -279,7 +328,6 @@ const SelectPlanNew: React.FunctionComponent<SelectPlanProps> = ({
         />
       </div>
       <ColoredBackground />
-      {currentPlan.interval === 'year' && <BestValueStamp />}
     </>
   )
 }

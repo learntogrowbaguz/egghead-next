@@ -1,17 +1,18 @@
 import * as React from 'react'
 import {FunctionComponent} from 'react'
 import groq from 'groq'
-import {sanityClient} from 'utils/sanity-client'
-import Image from 'next/image'
+import {sanityClient} from '@/utils/sanity-client'
+import Image from 'next/legacy/image'
 import Link from 'next/link'
 import Markdown from 'react-markdown'
-import {track} from 'utils/analytics'
-import {CardResource} from 'types'
+import {track} from '@/utils/analytics'
+import {CardResource} from '@/types'
 import {get} from 'lodash'
-import VideoCard from 'components/pages/home/video-card'
-import {VerticalResourceCard} from 'components/card/verticle-resource-card'
+import VideoCard from '@/components/pages/home/video-card'
+import {VerticalResourceCard} from '@/components/card/verticle-resource-card'
+import rehypeRaw from 'rehype-raw'
 
-const StateManagement: React.FC<any> = ({data}) => {
+const StateManagement: React.FC<React.PropsWithChildren<any>> = ({data}) => {
   return (
     <>
       <div className="py-5 dark:bg-gray-900 bg-gray-50">
@@ -73,26 +74,26 @@ const RecoilSection = ({resource}: any) => {
 
   return (
     <div className="p-5 py-10 mt-5 rounded-lg md:bg-gray-100 dark:bg-gray-700">
-      <Link href={path}>
-        <a
-          className="font-bold transition ease-in-out hover:text-blue-600 dark:hover:text-blue-300"
-          onClick={() => {
-            track('clicked resource', {
-              resource: path,
-            })
-          }}
-        >
-          <h1 className="mb-4 text-xl font-extrabold text-center sm:text-2xl md:text-4xl leading-tighter">
-            {title}
-          </h1>
-        </a>
+      <Link
+        href={path}
+        className="font-bold transition ease-in-out hover:text-blue-600 dark:hover:text-blue-300"
+        onClick={() => {
+          track('clicked resource', {
+            resource: path,
+          })
+        }}
+      >
+        <h1 className="mb-4 text-xl font-extrabold text-center sm:text-2xl md:text-4xl leading-tighter">
+          {title}
+        </h1>
       </Link>
 
       <Markdown
-        source={description}
-        allowDangerousHtml={true}
+        rehypePlugins={[rehypeRaw]}
         className="max-w-screen-md mx-auto mt-4 prose text-center text-gray-900 dark:prose-dark md:prose-lg md:dark:prose-lg-dark dark:text-gray-100"
-      />
+      >
+        {description}
+      </Markdown>
       <div className="grid grid-cols-1 gap-4 mt-10 lg:grid-cols-3">
         {resources.map((resource: any) => {
           return (
@@ -118,10 +119,11 @@ const BigIdeasSection = ({resource}: any) => {
             {title}
           </h1>
           <Markdown
-            source={description}
-            allowDangerousHtml={true}
+            rehypePlugins={[rehypeRaw]}
             className="max-w-screen-md mt-4 prose text-gray-900 dark:prose-dark md:prose-lg md:dark:prose-lg-dark dark:text-gray-100"
-          />
+          >
+            {description}
+          </Markdown>
         </div>
         <div className="col-span-3">
           {resources.map((resource: any) => {
@@ -137,7 +139,9 @@ type JumbotronProps = {
   resource: CardResource
 }
 
-const Jumbotron: FunctionComponent<JumbotronProps> = ({resource}) => {
+const Jumbotron: FunctionComponent<React.PropsWithChildren<JumbotronProps>> = ({
+  resource,
+}) => {
   const {image, title, background, description, name} = resource
 
   return (
@@ -148,7 +152,7 @@ const Jumbotron: FunctionComponent<JumbotronProps> = ({resource}) => {
             <div className="flex-shrink-0">
               <Image
                 quality={100}
-                src={get(image, 'src', image)}
+                src={get(image, 'src', image) as string}
                 width={340}
                 height={340}
                 priority={true}
@@ -163,10 +167,11 @@ const Jumbotron: FunctionComponent<JumbotronProps> = ({resource}) => {
                 {title}
               </h1>
               <Markdown
-                source={description}
-                allowDangerousHtml={true}
+                rehypePlugins={[rehypeRaw]}
                 className="max-w-screen-sm mt-4 text-base text-gray-700 dark:text-gray-200 opacity-80"
-              />
+              >
+                {description}
+              </Markdown>
             </div>
           </div>
         </div>

@@ -1,30 +1,34 @@
 import * as React from 'react'
 import groq from 'groq'
-import {sanityClient} from 'utils/sanity-client'
+import {sanityClient} from '@/utils/sanity-client'
 import find from 'lodash/find'
 import Link from 'next/link'
 import {serialize} from 'next-mdx-remote/serialize'
-import mdxComponents from 'components/mdx'
+import mdxComponents from '@/components/mdx'
 import {MDXRemote} from 'next-mdx-remote'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import type {CaseStudyResource} from './case-studies/[slug]'
 import {NextSeo} from 'next-seo'
 import Head from 'next/head'
-import {convertTimeToMins} from 'utils/time-utils'
+import {convertTimeToMins} from '@/utils/time-utils'
+import {useRouter} from 'next/router'
 
 const CASE_STUDY_SLUG = 'cloudflare'
 
-const CloudflarePage: React.FC<{caseStudy: CaseStudyResource; source: any}> = ({
-  caseStudy,
-  source,
-}) => {
+const CloudflarePage: React.FC<
+  React.PropsWithChildren<{caseStudy: CaseStudyResource; source: any}>
+> = ({caseStudy, source}) => {
   const {title, subTitle, publishedAt, resources, seo} = caseStudy
+  const router = useRouter()
+
   return (
     <>
       <NextSeo
+        canonical={`${process.env.NEXT_PUBLIC_DEPLOYMENT_URL}${router.asPath}`}
         title={seo.title}
         description={seo.description}
         openGraph={{
+          url: `${process.env.NEXT_PUBLIC_DEPLOYMENT_URL}${router.asPath}`,
           title: seo.ogTitle || title,
           description: seo.ogDescription,
           images: [
@@ -107,7 +111,7 @@ const CloudflarePage: React.FC<{caseStudy: CaseStudyResource; source: any}> = ({
   )
 }
 
-const Blockquote: React.FC = ({children}) => {
+const Blockquote: React.FC<React.PropsWithChildren<unknown>> = ({children}) => {
   return (
     <blockquote className="not-prose p-5 dark:border-gray-700 border-gray-300 border-l-[3px] dark:bg-gray-800 bg-gray-100 dark:text-gray-200 text-gray-800 relative not-italic font-normal">
       <div className="absolute -right-3 -top-3 w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center">
@@ -127,7 +131,9 @@ const Blockquote: React.FC = ({children}) => {
   )
 }
 
-const CourseWidget: React.FC<{course: any; cta?: string}> = ({course, cta}) => {
+const CourseWidget: React.FC<
+  React.PropsWithChildren<{course: any; cta?: string}>
+> = ({course, cta}) => {
   const {title, path, lessons, instructor, duration, image_thumb_url} = course
   return (
     <div className="sm:grid grid-cols-2 dark:bg-gray-1000 bg-gray-100 bg-opacity-80 dark:bg-opacity-100 rounded-lg overflow-hidden">
@@ -144,15 +150,13 @@ const CourseWidget: React.FC<{course: any; cta?: string}> = ({course, cta}) => {
             course
           </p>
           <h2 className="text-xl font-medium leading-tight dark:text-white text-black">
-            <Link href={path}>
-              <a className="group">
-                <span className="group-hover:underline">{title}</span>{' '}
-                {instructor?.full_name && (
-                  <span className="text-lg dark:text-gray-400 text-gray-500 font-normal">
-                    – by {instructor.full_name}
-                  </span>
-                )}
-              </a>
+            <Link href={path} className="group">
+              <span className="group-hover:underline">{title}</span>{' '}
+              {instructor?.full_name && (
+                <span className="text-lg dark:text-gray-400 text-gray-500 font-normal">
+                  – by {instructor.full_name}
+                </span>
+              )}
             </Link>
           </h2>
         </div>
@@ -228,7 +232,7 @@ const caseStudyQuery = groq`
   'slug': slug.current,
   "resources": resources[]-> {
       title,
-      'instructor': collaborators[]->[role == 'instructor'][0]{
+      'instructor': collaborators[@->.role == 'instructor'][0]->{
          'full_name': person->.name
        },
        path,

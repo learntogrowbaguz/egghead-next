@@ -1,13 +1,14 @@
+'use client'
 import * as React from 'react'
 import {FunctionComponent} from 'react'
 import Link from '../link'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import Eggo from '../images/eggo.svg'
-import {track} from 'utils/analytics'
-import {useViewer} from 'context/viewer-context'
+import {track} from '@/utils/analytics'
+import {useViewer} from '@/context/viewer-context'
 import {reject} from 'lodash'
 import {useTheme} from 'next-themes'
-import useCio from 'hooks/use-cio'
+import useCio from '@/hooks/use-cio'
 
 const content = [
   {
@@ -43,6 +44,10 @@ const about = [
     nonMemberRequired: true,
   },
   {
+    path: '/egghead-for-teams',
+    label: 'egghead for teams',
+  },
+  {
     path: 'https://store.egghead.io/',
     label: 'Store',
   },
@@ -57,16 +62,18 @@ const about = [
   },
 ]
 
-const Item: FunctionComponent<{
-  children: React.ReactNode
-  path: string
-  onClick: any
-}> = ({children, path, onClick}) => (
+const Item: FunctionComponent<
+  React.PropsWithChildren<{
+    children: React.ReactNode
+    path: string
+    onClick: any
+  }>
+> = ({children, path, onClick}) => (
   <li className="py-1 text-base leading-relaxed md:text-sm">
     <Link href={path} activeClassName="underline">
       <a
         onClick={onClick}
-        className="transition-colors duration-150 ease-in-out hover:text-blue-600"
+        className="transition-colors duration-150 ease-in-out dark:hover:text-blue-400 hover:text-blue-600"
       >
         {children}
       </a>
@@ -74,7 +81,9 @@ const Item: FunctionComponent<{
   </li>
 )
 
-const FooterNavigation: FunctionComponent = () => {
+const FooterNavigation: FunctionComponent<
+  React.PropsWithChildren<unknown>
+> = () => {
   const {viewer} = useViewer()
   const filterViewerRequired = (items: any[]) => {
     return reject(items, (item) => {
@@ -96,8 +105,7 @@ const FooterNavigation: FunctionComponent = () => {
               <Image src={Eggo} alt="egghead.io logo" />
             </div>
             <div className="mt-1 text-lg font-semibold tracking-tight leading-tighter">
-              Build your Developer Portfolio and climb the engineering career
-              ladder.
+              Expert led courses for professional front-end web developers.
             </div>
           </a>
         </Link>
@@ -134,11 +142,11 @@ const FooterNavigation: FunctionComponent = () => {
   )
 }
 
-const Footer: FunctionComponent = () => {
+const Footer: FunctionComponent<React.PropsWithChildren<unknown>> = () => {
   const [isMounted, setIsMounted] = React.useState<boolean>(false)
   React.useEffect(() => setIsMounted(true), [])
   return (
-    <footer className="bg-gray-50 dark:bg-gray-900 print:hidden dark:text-gray-200">
+    <footer className="bg-gray-50 dark:bg-gray-800/50 print:hidden dark:text-gray-200">
       <div className="container">
         {isMounted && <FooterNavigation />}
         <small className="flex items-center justify-center w-full py-6 space-x-6 text-xs text-gray-500 md:justify-end dark:text-gray-300">
@@ -178,9 +186,9 @@ const DarkModeToggle = () => {
   }
   return (
     <div className="flex items-center justify-between">
-      <h2 className="hidden mr-3 sm:block">
+      <span className="hidden mr-3 sm:block">
         {resolvedTheme === 'dark' ? 'Dark' : 'Light'} Mode
-      </h2>
+      </span>
       <div
         className="flex-shrink-0 w-16 h-10 p-1 bg-gray-300 rounded-full dark:bg-gray-1000"
         onClick={handleClick}

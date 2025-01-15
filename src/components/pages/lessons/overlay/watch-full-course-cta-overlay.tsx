@@ -1,48 +1,49 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import * as React from 'react'
-import {track} from 'utils/analytics'
-import noop from 'utils/noop'
-import {useTrackComponent} from 'hooks/use-track-component'
+import {track} from '@/utils/analytics'
+import noop from '@/utils/noop'
+import OverlayWrapper from '@/components/pages/lessons/overlay/wrapper'
 
-const WatchFullCourseCtaOverlay: React.FunctionComponent<{
-  lesson: any
-  onClickRewatch?: () => void
-}> = ({lesson, onClickRewatch = noop}) => {
+const WatchFullCourseCtaOverlay: React.FunctionComponent<
+  React.PropsWithChildren<{
+    lesson: any
+    onClickRewatch?: () => void
+  }>
+> = ({lesson, onClickRewatch = noop}) => {
   const courseImage = lesson?.collection?.square_cover_480_url
 
-  useTrackComponent('show course pitch', {course: lesson?.collection?.slug})
-
   return (
-    <div className="flex flex-col items-center justify-center p-4">
-      {courseImage && (
-        <div className="w-16 h-16 md:w-32 md:h-32 lg:w-40 lg:h-40 xl:w-48 xl:h-48 relative flex-shrink-0">
-          <Image
-            src={courseImage}
-            alt={`illustration of ${lesson.collection.title} course`}
-            layout="fill"
-          />
-        </div>
-      )}
-      <div className="mt-4 md:mt-4">This Lesson is Part of a Course</div>
-      <h3 className="text-md md:text-lg font-semibold mt-4 text-center">
-        {lesson.collection.title}
-      </h3>
-      <div className="flex mt-6 md:mt-8">
-        <button
-          className="border border-blue-600 rounded px-3 py-2 flex items-center hover:bg-gray-900 transition-colors duration-200 ease-in-out"
-          onClick={() => {
-            track('clicked rewatch video', {
-              lesson: lesson.slug,
-              location: 'lesson overlay',
-            })
-            onClickRewatch()
-          }}
-        >
-          <IconRefresh className="w-6 mr-2" /> Watch again
-        </button>
-        <Link href={lesson?.collection?.path || '#'}>
-          <a
+    <OverlayWrapper>
+      <div className="flex flex-col items-center justify-center p-4">
+        {courseImage && (
+          <div className="w-16 h-16 md:w-32 md:h-32 lg:w-40 lg:h-40 xl:w-48 xl:h-48 relative flex-shrink-0">
+            <Image
+              src={courseImage}
+              alt={`illustration of ${lesson.collection.title} course`}
+              layout="fill"
+            />
+          </div>
+        )}
+        <div className="mt-4 md:mt-4">This Lesson is Part of a Course</div>
+        <h3 className="text-md md:text-lg font-semibold mt-4 text-center">
+          {lesson.collection.title}
+        </h3>
+        <div className="flex mt-6 md:mt-8">
+          <button
+            className="border border-blue-600 rounded px-3 py-2 flex items-center hover:bg-gray-900 transition-colors duration-200 ease-in-out"
+            onClick={() => {
+              track('clicked rewatch video', {
+                lesson: lesson.slug,
+                location: 'lesson overlay',
+              })
+              onClickRewatch()
+            }}
+          >
+            <IconRefresh className="w-6 mr-2" /> Watch again
+          </button>
+          <Link
+            href={lesson?.collection?.path || '#'}
             onClick={() => {
               track('clicked view course', {
                 lesson: lesson.slug,
@@ -51,19 +52,20 @@ const WatchFullCourseCtaOverlay: React.FunctionComponent<{
             }}
             className="bg-blue-600 rounded px-3 py-2 flex items-center ml-4 hover:bg-blue-500 transition-colors duration-200 ease-in-out"
           >
-            <IconPlay className="w-6 mr-2" /> Explore the Whole Course
-          </a>
-        </Link>
+            <IconPlay className="w-6 mr-2" />
+            Explore the Whole Course
+          </Link>
+        </div>
       </div>
-    </div>
+    </OverlayWrapper>
   )
 }
 
 export default WatchFullCourseCtaOverlay
 
-const IconPlay: React.FunctionComponent<{className: string}> = ({
-  className = '',
-}) => (
+const IconPlay: React.FunctionComponent<
+  React.PropsWithChildren<{className: string}>
+> = ({className = ''}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 20 20"
@@ -78,9 +80,9 @@ const IconPlay: React.FunctionComponent<{className: string}> = ({
   </svg>
 )
 
-const IconRefresh: React.FunctionComponent<{className: string}> = ({
-  className = '',
-}) => (
+const IconRefresh: React.FunctionComponent<
+  React.PropsWithChildren<{className: string}>
+> = ({className = ''}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"

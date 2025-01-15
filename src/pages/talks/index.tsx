@@ -1,24 +1,36 @@
 import * as React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import groq from 'groq'
-import {sanityClient} from 'utils/sanity-client'
+import {sanityClient} from '@/utils/sanity-client'
+import {NextSeo} from 'next-seo'
+import {useRouter} from 'next/router'
 
-const Talks: React.FC = ({allTalks}: any) => {
+const Talks: React.FC<React.PropsWithChildren<unknown>> = ({allTalks}: any) => {
+  const router = useRouter()
+
   return (
-    <div className="container">
-      <div className="max-w-screen-lg py-10 mx-auto lg:py-16">
-        <h1 className="pb-16 text-2xl font-bold text-center md:text-4xl">
-          egghead Talks
-        </h1>
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-16">
-          {allTalks.map((talk: any) => {
-            return (
-              <div key={talk.path} className="flex flex-col">
-                {talk.image ? (
-                  <div className="mb-2 md:mb-4">
-                    <Link href={talk.path}>
-                      <a>
+    <>
+      <NextSeo
+        canonical={`${process.env.NEXT_PUBLIC_DEPLOYMENT_URL}${router.asPath}`}
+        titleTemplate={'%s | conference talk | egghead.io'}
+        openGraph={{
+          url: `${process.env.NEXT_PUBLIC_DEPLOYMENT_URL}${router.asPath}`,
+          site_name: 'egghead',
+        }}
+      />
+      <div className="container">
+        <div className="max-w-screen-lg py-10 mx-auto lg:py-16">
+          <h1 className="pb-16 text-2xl font-bold text-center md:text-4xl">
+            egghead Talks
+          </h1>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-16">
+            {allTalks.map((talk: any) => {
+              return (
+                <div key={talk.path} className="flex flex-col">
+                  {talk.image ? (
+                    <div className="mb-2 md:mb-4">
+                      <Link href={talk.path}>
                         <Image
                           src={talk.image}
                           alt={talk.title}
@@ -27,41 +39,37 @@ const Talks: React.FC = ({allTalks}: any) => {
                           quality={100}
                           className="rounded-lg"
                         />
-                      </a>
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="mb-2 aspect-w-16 aspect-h-9 md:mb-4">
-                    <Link href={talk.path}>
-                      <a>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="mb-2 aspect-[16/9] flex md:mb-4">
+                      <Link href={talk.path}>
                         <div className="absolute top-0 left-0 flex items-center justify-center w-full h-full text-gray-400 bg-gray-200 rounded-lg dark:bg-gray-800 dark:text-gray-600">
                           <IconPlaceholder />
                         </div>
-                      </a>
-                    </Link>
-                  </div>
-                )}
-                <Link href={talk.path}>
-                  <a>
+                      </Link>
+                    </div>
+                  )}
+                  <Link href={talk.path}>
                     <h2 className="text-xl font-bold md:text-2xl leading-tighter hover:text-blue-600 dark:hover:text-blue-300">
                       {talk.title}
                     </h2>
-                  </a>
-                </Link>
-                <h2 className="mt-2 text-xs font-semibold text-gray-700 uppercase dark:text-gray-300">
-                  {talk.instructor.name}
-                </h2>
-                {talk.summary && (
-                  <div className="mt-2 prose-sm prose text-gray-700 sm:prose dark:prose-dark dark:text-white">
-                    {talk.summary}
-                  </div>
-                )}
-              </div>
-            )
-          })}
+                  </Link>
+                  <h2 className="mt-2 text-xs font-semibold text-gray-700 uppercase dark:text-gray-300">
+                    {talk.instructor.name}
+                  </h2>
+                  {talk.summary && (
+                    <div className="mt-2 prose-sm prose text-gray-700 sm:prose dark:prose-dark dark:text-white">
+                      {talk.summary}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -93,7 +101,7 @@ const allTalksQuery = groq`
  image,
  description,
  summary,
- 'instructor': collaborators[]->[role == 'instructor'][0]{
+ 'instructor': collaborators[@->.role == 'instructor'][0]->{
    'name': person->.name
  },
 }

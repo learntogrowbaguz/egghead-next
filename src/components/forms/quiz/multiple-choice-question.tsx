@@ -1,16 +1,18 @@
 import * as React from 'react'
 import {FunctionComponent} from 'react'
 import Markdown from 'react-markdown'
-import useQuestion from 'hooks/use-question'
+import useQuestion from '@/hooks/use-question'
 import SubmitButton from './submit'
-import CompletedMessage from 'components/forms/quiz/completed-message'
+import CompletedMessage from '@/components/forms/quiz/completed-message'
 import shuffle from 'lodash/shuffle'
-import {Question, Questions} from 'types'
+import {Question, Questions} from '@/types'
 
-const MultipleChoiceQuestion: FunctionComponent<{
-  question: Question
-  questions: Questions
-}> = ({question, questions}) => {
+const MultipleChoiceQuestion: FunctionComponent<
+  React.PropsWithChildren<{
+    question: Question
+    questions: Questions
+  }>
+> = ({question, questions}) => {
   const {
     formik,
     onAnswer,

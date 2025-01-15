@@ -8,11 +8,11 @@ import {
   CardAuthor,
   CardFooter,
 } from './index'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import Link from 'next/link'
-import {track} from 'utils/analytics'
+import {track} from '@/utils/analytics'
 import {get, isEmpty} from 'lodash'
-import {CardResource} from 'types'
+import {CardResource} from '@/types'
 import {Textfit} from 'react-textfit'
 import ReactMarkdown from 'react-markdown'
 import cx from 'classnames'
@@ -23,26 +23,31 @@ type CardPageCardResource = CardResource & {
   meta?: string
 }
 
-const Button: React.FC<{
-  path: string
-  cta?: string
-}> = ({path, cta}) => {
+const Button: React.FC<
+  React.PropsWithChildren<{
+    path: string
+    cta?: string
+  }>
+> = ({path, cta}) => {
   return (
-    <Link href={path}>
-      <a className="text-center justify-center items-center mt-4 px-5 py-3 rounded-md bg-blue-600 text-white transition-all hover:bg-blue-700 ease-in-out duration-200 sm:block hidden">
-        {cta}
-      </a>
+    <Link
+      href={path}
+      className="text-center justify-center items-center mt-4 px-5 py-3 rounded-md bg-blue-600 text-white transition-all hover:bg-blue-700 ease-in-out duration-200 sm:block hidden"
+    >
+      {cta}
     </Link>
   )
 }
 
-const HorizontalResourceCard: React.FC<{
-  resource: CardPageCardResource
-  location?: string
-  describe?: boolean
-  className?: string
-  left?: boolean
-}> = ({
+const HorizontalResourceCard: React.FC<
+  React.PropsWithChildren<{
+    resource: CardPageCardResource
+    location?: string
+    describe?: boolean
+    className?: string
+    left?: boolean
+  }>
+> = ({
   children,
   resource,
   location,
@@ -53,7 +58,7 @@ const HorizontalResourceCard: React.FC<{
 }) => {
   if (isEmpty(resource)) return null
   const defaultClassName =
-    'rounded-md aspect-w-4 aspect-h-2 w-full h-full transition-all ease-in-out duration-200 relative overflow-hidden group shadow-smooth'
+    'rounded-md aspect-[2/1] flex  w-full h-full transition-all ease-in-out duration-200 relative overflow-hidden group shadow-smooth'
   return (
     <Card {...props} resource={resource} className={defaultClassName}>
       <CardContent className="grid grid-cols-8 gap-5 items-center px-8 py-2">
@@ -66,7 +71,7 @@ const HorizontalResourceCard: React.FC<{
                 className={className}
               >
                 <PreviewImage
-                  name={resource.byline}
+                  name={resource.byline || resource.type || ''}
                   image={resource.image}
                   title={resource.title}
                 />
@@ -123,7 +128,7 @@ const HorizontalResourceCard: React.FC<{
                 className={className}
               >
                 <PreviewImage
-                  name={resource.byline}
+                  name={resource.byline || resource.type || ''}
                   image={resource.image}
                   title={resource.title}
                 />
@@ -138,32 +143,32 @@ const HorizontalResourceCard: React.FC<{
   )
 }
 
-export const ResourceLink: React.FC<{
-  path: string
-  location?: string
-  className?: string
-  linkType?: string
-}> = ({children, path, location, linkType = 'text', ...props}) => (
-  <Link href={path}>
-    <a
-      onClick={() => {
-        track('clicked resource', {
-          resource: path,
-          linkType,
-          location,
-        })
-      }}
-      {...props}
-    >
-      {children}
-    </a>
+export const ResourceLink: React.FC<
+  React.PropsWithChildren<{
+    path: string
+    location?: string
+    className?: string
+    linkType?: string
+  }>
+> = ({children, path, location, linkType = 'text', ...props}) => (
+  <Link
+    href={path}
+    onClick={() => {
+      track('clicked resource', {
+        resource: path,
+        linkType,
+        location,
+      })
+    }}
+    {...props}
+  >
+    {children}
   </Link>
 )
 
-const PreviewImage: React.FC<{title: string; image: any; name: string}> = ({
-  image,
-  name,
-}) => {
+const PreviewImage: React.FC<
+  React.PropsWithChildren<{title: string; image: any; name: string}>
+> = ({image, name}) => {
   if (!image) return null
 
   const getSize = (name: string) => {

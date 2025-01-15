@@ -1,17 +1,19 @@
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import Link from 'next/link'
 import {get} from 'lodash'
 
-import {bpMinMD} from 'utils/breakpoints'
-import {track} from 'utils/analytics'
-import ExternalTrackedLink from 'components/external-tracked-link'
+import {bpMinMD} from '@/utils/breakpoints'
+import {track} from '@/utils/analytics'
+import ExternalTrackedLink from '@/components/external-tracked-link'
 
-const CtaCard: React.FC<{
-  location: string
-  trackTitle: string
-  resource: any
-  textLight?: any
-}> = ({location, trackTitle, textLight, resource}) => {
+const CtaCard: React.FC<
+  React.PropsWithChildren<{
+    location: string
+    trackTitle: string
+    resource: any
+    textLight?: any
+  }>
+> = ({location, trackTitle, textLight, resource}) => {
   const {path, title, byline, description, image, background} = resource
 
   return (
@@ -26,48 +28,46 @@ const CtaCard: React.FC<{
           <div className="space-y-5 mx-auto flex items-center justify-center max-w-screen-xl">
             <div className="flex flex-col items-center justify-center sm:space-x-5 sm:space-y-0 space-y-5">
               <div className="flex-shrink-0">
-                <Link href={path}>
-                  <a
-                    tabIndex={-1}
-                    onClick={() =>
-                      track(trackTitle, {
-                        resource: path,
-                        linkType: 'image',
-                      })
-                    }
-                  >
-                    <Image
-                      quality={100}
-                      src={get(image, 'src', image)}
-                      width={250}
-                      height={250}
-                      alt={get(image, 'alt', `illustration for ${title}`)}
-                    />
-                  </a>
+                <Link
+                  href={path}
+                  tabIndex={-1}
+                  onClick={() =>
+                    track(trackTitle, {
+                      resource: path,
+                      linkType: 'image',
+                    })
+                  }
+                >
+                  <Image
+                    quality={100}
+                    src={get(image, 'src', image)}
+                    width={250}
+                    height={250}
+                    alt={get(image, 'alt', `illustration for ${title}`)}
+                  />
                 </Link>
               </div>
               <div className="flex flex-col sm:items-start items-center">
-                <h2
+                <p
                   className={`text-xs uppercase font-semibold my-2 ${
                     textLight ? 'text-gray-300' : 'text-gray-700'
                   }`}
                 >
                   {byline}
-                </h2>
-                <Link href={path}>
-                  <a
-                    className={`text-xl font-extrabold leading-tighter   hover:text-blue-300 ${
-                      textLight ? 'text-white' : 'text-gray-900'
-                    }`}
-                    onClick={() =>
-                      track('clicked jumbotron resource', {
-                        resource: path,
-                        linkType: 'text',
-                      })
-                    }
-                  >
-                    <h1>{title}</h1>
-                  </a>
+                </p>
+                <Link
+                  href={path}
+                  className={`text-xl font-extrabold leading-tighter   hover:text-blue-300 ${
+                    textLight ? 'text-white' : 'text-gray-900'
+                  }`}
+                  onClick={() =>
+                    track('clicked jumbotron resource', {
+                      resource: path,
+                      linkType: 'text',
+                    })
+                  }
+                >
+                  <h2>{title}</h2>
                 </Link>
                 <p
                   className={`mt-4 ${

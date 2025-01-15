@@ -1,11 +1,11 @@
 import * as React from 'react'
-import {commerceMachine} from 'machines/commerce-machine'
+import {commerceMachine} from '@/machines/commerce-machine'
 import {useMachine} from '@xstate/react'
 import pickBy from 'lodash/pickBy'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import {Prices, PricingData, PricingPlan} from 'types'
+import {Prices, PricingData, PricingPlan} from '@/types'
 
 const extractPricesFromPricingData = (pricingData: PricingData): Prices => {
   const annualPrice = find(pricingData.plans, {
@@ -46,7 +46,9 @@ export const useCommerceMachine = (
   const placeholderAnnualPlan = {
     name: 'Yearly',
     interval: 'year',
-    stripe_price_id: null,
+    stripe_price_id: 'NO_PRICE_ID',
+    interval_count: 1,
+    price: 0,
   }
 
   // derived values

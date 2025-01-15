@@ -1,32 +1,37 @@
+'use client'
 import * as React from 'react'
 import {FunctionComponent} from 'react'
-import {useViewer} from 'context/viewer-context'
-import stripeCheckoutRedirect from 'api/stripe/stripe-checkout-redirect'
-import emailIsValid from 'utils/email-is-valid'
-import {track} from 'utils/analytics'
-import {useCommerceMachine} from 'hooks/use-commerce-machine'
+import {useViewer} from '@/context/viewer-context'
+import {redirectToSubscriptionCheckout} from '@/api/stripe/stripe-checkout-redirect'
+import emailIsValid from '@/utils/email-is-valid'
+import {track} from '@/utils/analytics'
+import {useCommerceMachine} from '@/hooks/use-commerce-machine'
 import {first, get} from 'lodash'
-import {Coupon, StripeAccount} from 'types'
-import {useRouter} from 'next/router'
-import SelectPlanNew from 'components/pricing/select-plan-new'
-import PoweredByStripe from 'components/pricing/powered-by-stripe'
-import ParityCouponMessage from 'components/pricing/parity-coupon-message'
+import {Coupon, StripeAccount} from '@/types'
+import {useRouter, useSearchParams} from 'next/navigation'
+import SelectPlanNew from '@/components/pricing/select-plan-new'
+import PoweredByStripe from '@/components/pricing/powered-by-stripe'
+import ParityCouponMessage from '@/components/pricing/parity-coupon-message'
 import isEmpty from 'lodash/isEmpty'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
-const PricingWidget: FunctionComponent<{}> = () => {
+const PricingWidget: FunctionComponent<React.PropsWithChildren<{}>> = () => {
   const {viewer, authToken} = useViewer()
+
   const router = useRouter()
+  const params = useSearchParams()
+  const stripeParam = params?.get('stripe')
+
   const [loaderOn, setLoaderOn] = React.useState<boolean>(false)
 
   React.useEffect(() => {
-    if (router?.query?.stripe === 'cancelled') {
+    if (stripeParam === 'cancelled') {
       track('checkout: cancelled from stripe')
     } else {
       track('visited pricing')
     }
-  }, [])
+  }, [stripeParam])
 
   const {
     state,
@@ -79,7 +84,7 @@ const PricingWidget: FunctionComponent<{}> = () => {
         .then(({data}) => data)
 
       if (hasProAccess) {
-        const message = `You already have pro access with this account (${viewer?.email}). Please contact support@egghead.io if you need help with your subscription.`
+        const message = `You already have pro access with this account (${viewer?.email}). Please contact support@egghead.io if you need help with your membership.`
 
         toast.error(message, {
           duration: 6000,
@@ -98,7 +103,7 @@ const PricingWidget: FunctionComponent<{}> = () => {
       await track('checkout: redirect to stripe', {
         priceId,
       })
-      stripeCheckoutRedirect({
+      redirectToSubscriptionCheckout({
         priceId,
         email: viewer.email,
         authToken,
@@ -112,14 +117,14 @@ const PricingWidget: FunctionComponent<{}> = () => {
 
       const couponCode = state.context.couponToApply?.couponCode
 
-      router.push({
-        pathname: '/pricing/email',
-        query: {
-          priceId,
-          quantity,
-          ...(couponCode && {coupon: couponCode}),
-        },
-      })
+      router.push(
+        '/pricing/email?' +
+          new URLSearchParams({
+            priceId,
+            quantity: quantity.toString(),
+            ...(couponCode && {coupon: couponCode}),
+          }),
+      )
       setLoaderOn(true)
     }
   }

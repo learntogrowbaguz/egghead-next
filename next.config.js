@@ -1,3 +1,4 @@
+/** @type {import('next').NextConfig} */
 const withSvgr = require(`next-svgr`)
 const withBundleAnalyzer = require(`@next/bundle-analyzer`)
 const withPlugins = require(`next-compose-plugins`)
@@ -19,10 +20,7 @@ const withMDX = require(`@next/mdx`)({
   },
 })
 const compact = require('lodash/compact')
-
-const withTM = require('next-transpile-modules')(['unist-util-visit'], {
-  debug: true,
-})
+const {hostname} = require('os')
 
 const searchUrlRoot = `/q`
 
@@ -33,19 +31,41 @@ checkEnv({
 const appUrl = process.env.NEXT_PUBLIC_AUTH_DOMAIN
 
 const IMAGE_HOST_DOMAINS = compact([
-  `d2eip9sf3oo6c2.cloudfront.net`,
-  `dcv19h61vib2d.cloudfront.net`,
-  `image.simplecastcdn.com`,
-  `res.cloudinary.com`,
-  `app.egghead.io`,
-  `gravatar.com`,
-  process.env.NODE_ENV !== 'production' && 'via.placeholder.com',
+  {
+    protocol: 'https',
+    hostname: `d2eip9sf3oo6c2.cloudfront.net`,
+  },
+  {
+    protocol: 'https',
+    hostname: `dcv19h61vib2d.cloudfront.net`,
+  },
+  {
+    protocol: 'https',
+    hostname: `image.simplecastcdn.com`,
+  },
+  {
+    protocol: 'https',
+    hostname: `res.cloudinary.com`,
+  },
+  {
+    protocol: 'https',
+    hostname: `app.egghead.io`,
+  },
+  {
+    protocol: 'https',
+    hostname: `gravatar.com`,
+  },
+  {
+    protocol: 'https',
+    hostname: `image.mux.com`,
+  },
 ])
 
 const nextConfig = {
+  transpilePackages: ['unist-util-visit'],
   reactStrictMode: true,
   images: {
-    domains: IMAGE_HOST_DOMAINS,
+    remotePatterns: IMAGE_HOST_DOMAINS,
   },
   async redirects() {
     return [
@@ -160,6 +180,21 @@ const searchRoutes = [
 
 const legacyRoutes = [
   {
+    source: `/blog/manage-reactive-state-with-solid-js-signals`,
+    destination: `/blog/manage-reactive-state-with-solidjs-signals`,
+    permanent: true,
+  },
+  {
+    source: `/user/subscription`,
+    destination: `/user/membership`,
+    permanent: true,
+  },
+  {
+    source: `/user`,
+    destination: `/user/membership`,
+    permanent: true,
+  },
+  {
     source: `/membership`,
     destination: `/user`,
     permanent: true,
@@ -171,7 +206,7 @@ const legacyRoutes = [
   },
   {
     source: `/sitemap.xml.gz`,
-    destination: `${appUrl}/sitemap.xml.gz`,
+    destination: `https://egghead-sitemaps.s3.amazonaws.com/sitemaps/sitemap.xml.gz`,
     permanent: true,
   },
   {
@@ -271,11 +306,6 @@ const contentCrudRoutes = [
     permanent: true,
   },
   {
-    source: `/courses/:title/:rest(.+)`,
-    destination: `${appUrl}/courses/:title/:rest`,
-    permanent: true,
-  },
-  {
     source: `/playlists/new`,
     destination: `${appUrl}/playlists/new`,
     permanent: true,
@@ -283,11 +313,6 @@ const contentCrudRoutes = [
   {
     source: `/playlists/:title/:rest(.+)`,
     destination: `${appUrl}/playlists/:title/:rest`,
-    permanent: true,
-  },
-  {
-    source: `/lessons/:title/:rest(.+)`,
-    destination: `${appUrl}/lessons/:title/:rest`,
     permanent: true,
   },
   {
@@ -370,7 +395,6 @@ module.exports = withPlugins(
       enabled: process.env.ANALYZE === `true`,
     }),
     withSvgr,
-    withTM,
     withImages(),
     withMDX({
       pageExtensions: [`ts`, `tsx`, `mdx`],

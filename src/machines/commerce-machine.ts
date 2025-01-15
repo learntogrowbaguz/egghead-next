@@ -1,15 +1,56 @@
 import {createMachine, assign} from 'xstate'
-import {loadPricingData} from 'lib/prices'
+import {loadPricingData} from '@/lib/prices'
 import isEmpty from 'lodash/isEmpty'
-import {PricingData} from 'types'
+import {PricingData} from '@/types'
 
 type CouponToApply = {
   couponCode: string
-  couponType: 'ppp' | 'default'
+  couponType: 'ppp' | 'special' | 'default'
 }
 
 const findAvailablePPPCoupon = (pricingData: PricingData) => {
   return pricingData?.available_coupons?.ppp
+}
+
+const extractAppliedDefaultCoupon = (
+  pricingData: PricingData,
+): {couponToApply: CouponToApply} | {} => {
+  // check if there is a site-wide/'default' coupon available
+  const availableDefaultCoupon = pricingData?.available_coupons?.default
+
+  // check if there is a site-wide/'default' coupon being applied
+  const appliedCoupon = pricingData?.applied_coupon
+
+  // no applied default coupon found
+  if (isEmpty(availableDefaultCoupon) && isEmpty(appliedCoupon)) {
+    return {}
+  }
+
+  // if a site-wide/'default' coupon is being applied, set that as the
+  // `couponToApply` in the machine context. The CouponToApply is
+  // needed when transitioning to the Stripe Checkout Session.
+  if (availableDefaultCoupon?.coupon_code === appliedCoupon?.coupon_code) {
+    return {
+      couponToApply: {
+        couponCode: appliedCoupon.coupon_code,
+        couponType: 'default',
+      },
+    }
+  }
+
+  // if we have an appliedCoupon that isn't region restricted and not default
+  // we want to honor it
+  if (appliedCoupon && !appliedCoupon.coupon_region_restricted) {
+    return {
+      couponToApply: {
+        couponCode: appliedCoupon.coupon_code,
+        couponType: 'special',
+      },
+    }
+  }
+
+  // the applied coupon is not the site-wide/'default'
+  return {}
 }
 
 export interface CommerceMachineContext {
@@ -81,9 +122,7 @@ export const commerceMachine = createMachine<
         initial: 'checkingCouponStatus',
         on: {
           SWITCH_PRICE: {
-            actions: assign({
-              priceId: (_context, event) => event.priceId,
-            }),
+            actions: ['switchPriceIdAndAssociatedData'],
           },
           CONFIRM_PRICE: {
             actions: async (_context, event) => {
@@ -138,49 +177,35 @@ export const commerceMachine = createMachine<
   {
     services: {
       fetchPricingData: async (context): Promise<PricingData | undefined> => {
+        let params = new URLSearchParams(window.location.search)
         return await loadPricingData({
           quantity: context.quantity,
-          coupon: context.couponToApply?.couponCode,
+          coupon:
+            context.couponToApply?.couponCode ||
+            (params.get('coupon') as string),
         })
       },
     },
     actions: {
+      switchPriceIdAndAssociatedData: assign((context, event) => {
+        if (event.type !== 'SWITCH_PRICE') return {}
+
+        const currentPlan = context.pricingData.plans.find(
+          (plan) => plan.stripe_price_id === event.priceId,
+        )
+        const noCouponToApply = !currentPlan?.price_discounted
+        const couponData = noCouponToApply
+          ? {couponToApply: undefined}
+          : extractAppliedDefaultCoupon(context.pricingData)
+
+        return {
+          priceId: event.priceId,
+          ...couponData,
+        }
+      }),
       assignPricingData: assign(
         (_, event) => {
           if (event.type !== 'done.invoke.fetchPricingDataService') return {}
-
-          const extractAppliedDefaultCoupon = (
-            pricingData: PricingData,
-          ): {couponToApply: CouponToApply} | {} => {
-            // check if there is a site-wide/'default' coupon available
-            const availableDefaultCoupon =
-              pricingData?.available_coupons?.default
-
-            // check if there is a site-wide/'default' coupon being applied
-            const appliedCoupon = pricingData?.applied_coupon
-
-            // no applied default coupon found
-            if (isEmpty(availableDefaultCoupon) || isEmpty(appliedCoupon)) {
-              return {}
-            }
-
-            // if a site-wide/'default' coupon is being applied, set that as the
-            // `couponToApply` in the machine context. The CouponToApply is
-            // needed when transitioning to the Stripe Checkout Session.
-            if (
-              availableDefaultCoupon?.coupon_code === appliedCoupon?.coupon_code
-            ) {
-              return {
-                couponToApply: {
-                  couponCode: appliedCoupon.coupon_code,
-                  couponType: 'default',
-                },
-              }
-            }
-
-            // the applied coupon is not the site-wide/'default'
-            return {}
-          }
 
           return {
             pricingData: event.data,

@@ -1,6 +1,6 @@
 import {getGraphQLClient} from '../utils/configured-graphql-client'
 import {get} from 'lodash'
-import getAccessTokenFromCookie from 'utils/get-access-token-from-cookie'
+import getAccessTokenFromCookie from '@/utils/get-access-token-from-cookie'
 
 const CourseRatingsQuery = `
   query RatingsQuery($slug: String!, $per_page: Int!, $type: String!) {
@@ -39,8 +39,11 @@ export async function loadRatings(slug: string, type: string = 'Series') {
     per_page: SIZE_OF_PAGE,
   }
 
+  console.log('variables', {variables})
+
   try {
     const result = await graphQLClient.request(CourseRatingsQuery, variables)
+    console.log('result', {result})
     return get(result, 'ratings.data', [])
   } catch {
     return []

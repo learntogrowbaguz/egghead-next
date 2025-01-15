@@ -1,14 +1,14 @@
 import React, {FunctionComponent} from 'react'
 import * as yup from 'yup'
 import {Formik} from 'formik'
-import {useViewer} from 'context/viewer-context'
+import {useViewer} from '@/context/viewer-context'
 
 const loginSchema = yup.object().shape({
   email: yup.string().email().required('enter your email'),
 })
 
 type LoginFormProps = {
-  HeaderImageComponent?: React.FC
+  HeaderImageComponent?: React.FC<React.PropsWithChildren<unknown>>
   className?: string
   button?: string
   label?: string
@@ -16,7 +16,7 @@ type LoginFormProps = {
   onSubmit: (value: any, setIsError: any) => void
 }
 
-const EmailForm: FunctionComponent<LoginFormProps> = ({
+const EmailForm: FunctionComponent<React.PropsWithChildren<LoginFormProps>> = ({
   HeaderImageComponent,
   className,
   children,
@@ -110,7 +110,7 @@ const EmailForm: FunctionComponent<LoginFormProps> = ({
                           onChange={handleChange}
                           onBlur={handleBlur}
                           placeholder="you@company.com"
-                          className="text-black autofill:text-fill-black py-3 placeholder-gray-400 focus:ring-indigo-500 focus:border-blue-500 block w-full pl-10 border-gray-300 rounded-md"
+                          className="text-black py-3 placeholder-gray-400 focus:ring-indigo-500 focus:border-blue-500 block w-full pl-10 border-gray-300 rounded-md"
                           required
                         />
                       </div>

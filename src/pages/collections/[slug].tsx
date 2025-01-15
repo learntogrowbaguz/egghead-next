@@ -2,7 +2,7 @@ import * as React from 'react'
 import Link from 'next/link'
 import Markdown from 'react-markdown'
 import useSWR from 'swr'
-import {loadCollection} from 'lib/collections'
+import {loadCollection} from '@/lib/collections'
 import {FunctionComponent} from 'react'
 import {GetServerSideProps} from 'next'
 
@@ -12,7 +12,9 @@ type CollectionProps = {
   collection: any
 }
 
-const Collection: FunctionComponent<CollectionProps> = ({collection}) => {
+const Collection: FunctionComponent<
+  React.PropsWithChildren<CollectionProps>
+> = ({collection}) => {
   const initialData = collection
   const {data} = useSWR(collection.url, fetcher, {initialData})
   const {title, description, owner, items} = data
@@ -38,9 +40,7 @@ const Collection: FunctionComponent<CollectionProps> = ({collection}) => {
           {items.map((lesson: any) => {
             return (
               <li key={lesson.slug}>
-                <Link href={lesson.path}>
-                  <a>{lesson.title}</a>
-                </Link>
+                <Link href={lesson.path}>{lesson.title}</Link>
               </li>
             )
           })}

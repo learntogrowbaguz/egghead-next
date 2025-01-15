@@ -1,8 +1,8 @@
 import * as React from 'react'
 import {FunctionComponent} from 'react'
-import InProgressResource from 'components/pages/users/dashboard/activity/in-progress-resource'
+import InProgressResource from '@/components/pages/users/dashboard/activity/in-progress-resource'
 import {isEmpty} from 'lodash'
-import Spinner from 'components/spinner'
+import Spinner from '@/components/spinner'
 
 type InProgressSectionProps = {
   viewer: any
@@ -11,12 +11,9 @@ type InProgressSectionProps = {
   coursesInProgress: any
 }
 
-const InProgressSection: FunctionComponent<InProgressSectionProps> = ({
-  viewer,
-  progress,
-  currentCourse,
-  coursesInProgress,
-}) => {
+const InProgressSection: FunctionComponent<
+  React.PropsWithChildren<InProgressSectionProps>
+> = ({viewer, progress, currentCourse, coursesInProgress}) => {
   return (
     <section className="pt-4 pb-10">
       <div className="flex justify-between align-text-top">

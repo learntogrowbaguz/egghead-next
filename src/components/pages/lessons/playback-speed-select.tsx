@@ -7,16 +7,18 @@ import {
   ListboxList,
   ListboxOption,
 } from '@reach/listbox'
-import {track} from 'utils/analytics'
-import MultiplySymbol from 'components/icons/cancel'
+import {track} from '@/utils/analytics'
+import MultiplySymbol from '@/components/icons/cancel'
 
 const availableSpeeds = ['0.5', '0.75', '1', '1.25', '1.5', '1.75', '2']
 
-const PlaybackSpeedSelect: FunctionComponent<{
-  playbackRate: number
-  changePlaybackRate: any
-  video: string
-}> = ({playbackRate, changePlaybackRate, video}) => {
+const PlaybackSpeedSelect: FunctionComponent<
+  React.PropsWithChildren<{
+    playbackRate: number
+    changePlaybackRate: any
+    video: string
+  }>
+> = ({playbackRate, changePlaybackRate, video}) => {
   const [value, setValue] = React.useState<string>(playbackRate.toString())
 
   return playbackRate ? (

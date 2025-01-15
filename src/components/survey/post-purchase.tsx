@@ -1,17 +1,17 @@
 import * as React from 'react'
 import MultipleChoiceQuestion from './questions/multiple-choice-question'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import Link from 'next/link'
 import MultiLine from './questions/multi-line'
 import Markdown from 'react-markdown'
-import useCio from 'hooks/use-cio'
+import useCio from '@/hooks/use-cio'
 import {surveyReducer, SurveyQuestion, SurveyState} from './survey-reducer'
-import {Card} from 'components/card'
+import {Card} from '@/components/card'
 import {postPurchaseSurvey} from './data/post-purchase-survey-data'
 
-const QuestionHeading: React.FunctionComponent<{question: SurveyQuestion}> = ({
-  question,
-}) => {
+const QuestionHeading: React.FunctionComponent<
+  React.PropsWithChildren<{question: SurveyQuestion}>
+> = ({question}) => {
   return (
     <>
       <h2 className="text-xl mb-3 font-bold dark:text-gray-100 text-gray-700">
@@ -32,11 +32,13 @@ export const postPurchaseSurveyInitialState: SurveyState = {
   surveyTitle: 'post-purchase survey',
 }
 
-const PostPurchaseSurvey: React.FunctionComponent<{
-  className?: any
-  alternative?: JSX.Element
-  initialSurveyState?: SurveyState
-}> = ({
+const PostPurchaseSurvey: React.FunctionComponent<
+  React.PropsWithChildren<{
+    className?: any
+    alternative?: JSX.Element
+    initialSurveyState?: SurveyState
+  }>
+> = ({
   className,
   alternative,
   initialSurveyState = postPurchaseSurveyInitialState,
@@ -112,14 +114,13 @@ const PostPurchaseSurvey: React.FunctionComponent<{
           <div>
             <QuestionHeading question={state.question} />
             {state.question.url && (
-              <Link href={state.question.url}>
-                <a
-                  onClick={() => onAnswer()}
-                  target="_blank"
-                  className="inline-flex justify-center items-center px-5 py-3 rounded-md bg-blue-600 text-white transition-all hover:bg-blue-700 ease-in-out duration-200"
-                >
-                  {state.question.button_label}
-                </a>
+              <Link
+                href={state.question.url}
+                onClick={() => onAnswer()}
+                target="_blank"
+                className="inline-flex justify-center items-center px-5 py-3 rounded-md bg-blue-600 text-white transition-all hover:bg-blue-700 ease-in-out duration-200"
+              >
+                {state.question.button_label}
               </Link>
             )}
           </div>

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import groq from 'groq'
-import {sanityClient} from 'utils/sanity-client'
+import {sanityClient} from '@/utils/sanity-client'
 
 export default function LoadDataFromSanity() {
   const [data, setData] = React.useState<any>()
@@ -37,7 +37,7 @@ export default function LoadDataFromSanity() {
               name,
               'image': externalPreviewImageUrl,
               path,
-              'instructor': collaborators[]->[role == 'instructor'][0]{
+              'instructor': collaborators[@->.role == 'instructor'][0]->{
                 title,
                 'slug': person->slug.current,
                 'name': person->name,
@@ -52,7 +52,7 @@ export default function LoadDataFromSanity() {
                 name,
                 'image': externalPreviewImageUrl,
                 path,
-                'instructor': collaborators[]->[role == 'instructor'][0]{
+                'instructor': collaborators[@->.role == 'instructor'][0]->{
                   title,
                   'slug': person->slug.current,
                   'name': person->name,

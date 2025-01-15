@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Field, Form, Formik} from 'formik'
-import {useTrackComponent} from 'hooks/use-track-component'
+import OverlayWrapper from '@/components/pages/lessons/overlay/wrapper'
 
 const rangeArr = [1, 2, 3, 4, 5, 6, 7]
 
@@ -14,54 +14,58 @@ const rangeArrMobile = [
   'Entirely likely',
 ]
 
-const RateCourseOverlay: React.FunctionComponent<{
-  course: any
-  onRated: (values: any) => void
-}> = ({course, onRated}) => {
+const RateCourseOverlay: React.FunctionComponent<
+  React.PropsWithChildren<{
+    course: any
+    onRated: (values: any) => void
+  }>
+> = ({course, onRated}) => {
   const [rating, setRating] = React.useState(false)
   const [complete, setComplete] = React.useState(false)
   const {title, square_cover_480_url, slug} = course
 
-  useTrackComponent('show rate course', {course: slug})
-
   return (
-    <div className="flex flex-col items-center justify-center p-4">
-      <div className="flex flex-col items-center">
-        <img
-          src={square_cover_480_url}
-          alt={`illustration of ${title} course`}
-          className="w-16 md:w-24"
-        />
-        <h3 className="text-md md:text-lg lg:text-xl font-semibold mt-4 text-center white">
-          {title}
-        </h3>
+    <OverlayWrapper>
+      <div className="flex flex-col items-center justify-center p-4">
+        <div className="flex flex-col items-center">
+          <img
+            src={square_cover_480_url}
+            alt={`illustration of ${title} course`}
+            className="w-16 md:w-24"
+          />
+          <h3 className="text-md md:text-lg lg:text-xl font-semibold mt-4 text-center white">
+            {title}
+          </h3>
+        </div>
+        {!rating && (
+          <NumericRating
+            course={course}
+            onRated={(rating: any) => {
+              setRating(rating)
+            }}
+          />
+        )}
+        {rating && !complete && (
+          <TextComment
+            rating={rating}
+            onAnswer={(comment: any) => {
+              onRated({rating, comment})
+              setComplete(true)
+            }}
+          />
+        )}
+        {complete && <div>Thank you!</div>}
       </div>
-      {!rating && (
-        <NumericRating
-          course={course}
-          onRated={(rating: any) => {
-            setRating(rating)
-          }}
-        />
-      )}
-      {rating && !complete && (
-        <TextComment
-          rating={rating}
-          onAnswer={(comment: any) => {
-            onRated({rating, comment})
-            setComplete(true)
-          }}
-        />
-      )}
-      {complete && <div>Thank you!</div>}
-    </div>
+    </OverlayWrapper>
   )
 }
 
-const TextComment: React.FunctionComponent<{
-  onAnswer: any
-  rating: number | boolean
-}> = ({onAnswer, rating}) => {
+const TextComment: React.FunctionComponent<
+  React.PropsWithChildren<{
+    onAnswer: any
+    rating: number | boolean
+  }>
+> = ({onAnswer, rating}) => {
   const MESSAGES: any = {
     7: {
       subtitle: "We're so glad you enjoyed it! 🤗",
@@ -156,10 +160,9 @@ const TextComment: React.FunctionComponent<{
   )
 }
 
-const NumericRating: React.FunctionComponent<{course: any; onRated: any}> = ({
-  course,
-  onRated,
-}) => {
+const NumericRating: React.FunctionComponent<
+  React.PropsWithChildren<{course: any; onRated: any}>
+> = ({course, onRated}) => {
   const {title, square_cover_480_url} = course
   return (
     <>
@@ -236,9 +239,9 @@ const NumericRating: React.FunctionComponent<{course: any; onRated: any}> = ({
 
 export default RateCourseOverlay
 
-const IconThumbDown: React.FunctionComponent<{className?: string}> = ({
-  className = '',
-}) => (
+const IconThumbDown: React.FunctionComponent<
+  React.PropsWithChildren<{className?: string}>
+> = ({className = ''}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -255,9 +258,9 @@ const IconThumbDown: React.FunctionComponent<{className?: string}> = ({
   </svg>
 )
 
-const IconThumbUp: React.FunctionComponent<{className?: string}> = ({
-  className = '',
-}) => (
+const IconThumbUp: React.FunctionComponent<
+  React.PropsWithChildren<{className?: string}>
+> = ({className = ''}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"

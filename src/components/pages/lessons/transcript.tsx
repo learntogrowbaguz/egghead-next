@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from 'react'
 
 import ReactMarkdown from 'react-markdown'
-import CodeBlock from 'components/code-block'
+import CodeBlock from '@/components/code-block'
 
 type TranscriptProps = {
   className?: string
@@ -25,7 +25,9 @@ const hmsToSeconds = (str: string) => {
 const regex =
   /[0-9]:[0-9][0-9]|[0-9]{2}:[0-9][0-9]|[[0-9]{2}:[0-9][0-9]]|[[0-9]{3}:[0-9][0-9]]/g
 
-const Transcript: FunctionComponent<TranscriptProps> = ({
+const Transcript: FunctionComponent<
+  React.PropsWithChildren<TranscriptProps>
+> = ({
   className,
   initialTranscript = '',
   enhancedTranscript,
@@ -40,7 +42,7 @@ const Transcript: FunctionComponent<TranscriptProps> = ({
     <>
       <ReactMarkdown
         skipHtml={false}
-        renderers={{
+        components={{
           code: (props) => {
             return <CodeBlock {...props} />
           },

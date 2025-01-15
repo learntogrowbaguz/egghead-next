@@ -1,8 +1,10 @@
 import {request} from 'graphql-request'
-import getAccessTokenFromCookie from 'utils/get-access-token-from-cookie'
+import getAccessTokenFromCookie from '@/utils/get-access-token-from-cookie'
 import {getGraphQLClient} from '../utils/configured-graphql-client'
 import config from './config'
 import {loadCourseMetadata} from './courses'
+import groq from 'groq'
+import {sanityClient} from '@/utils/sanity-client'
 
 export async function loadAllPlaylistsByPage(retryCount = 0): Promise<any> {
   const query = /* GraphQL */ `
@@ -100,26 +102,29 @@ export async function loadAllPlaylists() {
   return all_playlists
 }
 
-export async function loadAuthedPlaylistForUser(slug: string) {
+export async function loadAuthedPlaylistForUser(
+  slug: string,
+  accessToken?: string,
+) {
+  if (slug === 'undefined') return
+
   const query = /* GraphQL */ `
     query getPlaylist($slug: String!) {
       playlist(slug: $slug) {
         favorited
         toggle_favorite_url
-        download_url
         rss_url
       }
     }
   `
   const token = getAccessTokenFromCookie()
-  const graphQLClient = getGraphQLClient(token)
+  const graphQLClient = getGraphQLClient(accessToken ?? token)
 
   const variables = {
     slug: slug,
   }
 
   const {playlist} = await graphQLClient.request(query, variables)
-
   return playlist
 }
 
@@ -150,6 +155,9 @@ export async function loadPlaylist(slug: string, token?: string) {
         published_at
         access_state
         visibility_state
+        toggle_favorite_url
+        favorited
+        state
         tags {
           name
           image_url
@@ -222,6 +230,9 @@ export async function loadPlaylist(slug: string, token?: string) {
             created_at
             updated_at
             published_at
+            primary_tag {
+              name
+            }
           }
           ... on File {
             slug
@@ -285,21 +296,12 @@ export async function loadPlaylist(slug: string, token?: string) {
     slug: slug,
   }
 
+  console.log('query', token)
+
   const graphQLClient = getGraphQLClient(token)
 
   const {playlist} = await graphQLClient.request(query, variables)
-  const courseMeta = await loadCourseMetadata(playlist.id)
+  const courseMeta = await loadCourseMetadata(playlist.id, playlist.slug)
 
-  // This is a temporary hack in order to get an illustration up
-  // for Kent's course: https://egghead.io/courses/up-and-running-with-remix-b82b6bb6
-  // While image uploads are down
-  if (courseMeta?.illustration) {
-    return {
-      ...playlist,
-      ...courseMeta,
-      square_cover_480_url: courseMeta?.illustration.url,
-    }
-  }
-
-  return {...playlist, ...courseMeta}
+  return {...playlist, ...courseMeta, slug}
 }

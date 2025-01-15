@@ -1,8 +1,8 @@
-import sortingHatData from 'data/sorting-hat'
-import {CIOSubscriber} from 'hooks/use-cio'
-import {track} from 'utils/analytics'
+import sortingHatData from '@/data/sorting-hat'
+import {CIOSubscriber} from '@/hooks/use-cio'
+import {track} from '@/utils/analytics'
 import {isEmpty} from 'lodash'
-import {cioIdentify} from 'utils/cio-identify'
+import {cioIdentify} from '@/utils/cio/cio-identify'
 
 const DEFAULT_FIRST_QUESTION = `biggest_path`
 const DEFAULT_FINAL_QUESTION = `thanks`
@@ -83,7 +83,6 @@ export const surveyReducer = (
 
     return state
   } catch (error) {
-    console.error(error.message)
     track(`survey error`, {
       survey: state.surveyTitle,
       version: state.data.version,

@@ -1,21 +1,22 @@
 import React from 'react'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import Link from 'next/link'
 import {NextSeo} from 'next-seo'
 import Topic from '../../components/topic'
 import awsPageData from './aws-page-data'
 import {find, get} from 'lodash'
 import ExternalTrackedLink from '../../../external-tracked-link'
-import {track} from 'utils/analytics'
-import {bpMinMD} from 'utils/breakpoints'
+import {track} from '@/utils/analytics'
+import {bpMinMD} from '@/utils/breakpoints'
 import {useTheme} from 'next-themes'
 import {ThreeLevels} from '../curated-essential'
 import VideoCard from '../../../pages/home/video-card'
 import {VerticalResourceCollectionCard} from '../../../card/vertical-resource-collection-card'
+import {useRouter} from 'next/router'
 
 const SearchAWS = () => {
   const location = 'AWS landing'
-  const description = `Life is too short for lonnnnnng boring videos. Learn AWS using the best screencast tutorial videos online.`
+  const description = `Life is too short for lonnnnnng boring videos. Learn AWS using the best screencast tutorial videos online led by working professionals that learn in public.`
   const title = `In-Depth Up-to-Date AWS Tutorials for ${new Date().getFullYear()}`
 
   const beginner: any = find(awsPageData, {id: 'beginner'})
@@ -32,9 +33,12 @@ const SearchAWS = () => {
     id: 'aws-sam',
   })
 
+  const router = useRouter()
+
   return (
     <div>
       <NextSeo
+        canonical={`${process.env.NEXT_PUBLIC_DEPLOYMENT_URL}${router.asPath}`}
         description={description}
         title={title}
         titleTemplate={'%s | egghead.io'}
@@ -44,6 +48,7 @@ const SearchAWS = () => {
         }}
         openGraph={{
           title,
+          url: `${process.env.NEXT_PUBLIC_DEPLOYMENT_URL}${router.asPath}`,
           description: description,
           site_name: 'egghead',
           images: [
@@ -92,7 +97,9 @@ AWS provides services for data, presentation, authentication, security, video en
   )
 }
 
-const AWSCourse: React.FC<{location: string}> = ({location}) => {
+const AWSCourse: React.FC<React.PropsWithChildren<{location: string}>> = ({
+  location,
+}) => {
   const {path, title, byline, name, description, image, background, slug} = {
     title: 'Deploy Ghost to AWS using RDS and EC2',
     byline: 'Sam Julien',
@@ -117,42 +124,40 @@ const AWSCourse: React.FC<{location: string}> = ({location}) => {
           <div className="flex items-center justify-center max-w-screen-xl mx-auto space-y-5">
             <div className="flex flex-col items-center justify-center space-y-5 sm:space-x-5 sm:space-y-0">
               <div className="flex-shrink-0">
-                <Link href={path}>
-                  <a
-                    tabIndex={-1}
-                    onClick={() =>
-                      track('clicked jumbotron resource', {
-                        resource: path,
-                        linkType: 'image',
-                      })
-                    }
-                  >
-                    <Image
-                      quality={100}
-                      src={get(image, 'src', image)}
-                      width={250}
-                      height={250}
-                      alt={get(image, 'alt', `illustration for ${title}`)}
-                    />
-                  </a>
+                <Link
+                  href={path}
+                  tabIndex={-1}
+                  onClick={() =>
+                    track('clicked jumbotron resource', {
+                      resource: path,
+                      linkType: 'image',
+                    })
+                  }
+                >
+                  <Image
+                    quality={100}
+                    src={get(image, 'src', image)}
+                    width={250}
+                    height={250}
+                    alt={get(image, 'alt', `illustration for ${title}`)}
+                  />
                 </Link>
               </div>
               <div className="flex flex-col items-center sm:items-start">
-                <h2 className="mb-2 text-xs font-semibold text-white uppercase">
+                <p className="mb-2 text-xs font-semibold text-white uppercase">
                   {byline}
-                </h2>
-                <Link href={path}>
-                  <a
-                    className="text-xl font-extrabold leading-tighter hover:text-blue-300"
-                    onClick={() =>
-                      track('clicked jumbotron resource', {
-                        resource: path,
-                        linkType: 'text',
-                      })
-                    }
-                  >
-                    <h1>{title}</h1>
-                  </a>
+                </p>
+                <Link
+                  href={path}
+                  className="text-xl font-extrabold leading-tighter hover:text-blue-300"
+                  onClick={() =>
+                    track('clicked jumbotron resource', {
+                      resource: path,
+                      linkType: 'text',
+                    })
+                  }
+                >
+                  <h2>{title}</h2>
                 </Link>
                 <p className="mt-4">{description}</p>
               </div>

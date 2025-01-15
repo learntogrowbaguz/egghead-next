@@ -1,9 +1,9 @@
 import groq from 'groq'
 
-import CtaCard from 'components/search/components/cta-card'
-import {CardResource} from 'types'
+import CtaCard from '@/components/search/components/cta-card'
+import {CardResource} from '@/types'
 import SearchInstructorEssential from '../instructor-essential'
-import {VerticalResourceCard} from 'components/card/verticle-resource-card'
+import {VerticalResourceCard} from '@/components/card/verticle-resource-card'
 
 const SearchRyanChenkie = ({instructor}: {instructor: any}) => {
   const {courses} = instructor
@@ -47,7 +47,7 @@ export const RyanChenkieQuery = groq`
        byline,
        image,
        'background': images[label == 'feature-card-background'][0].url,
-       'instructor': collaborators[]->[role == 'instructor'][0]{
+       'instructor': collaborators[@->.role == 'instructor'][0]->{
          'name': person->.name
        },
      }

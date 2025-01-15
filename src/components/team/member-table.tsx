@@ -5,8 +5,8 @@ import {useMachine} from '@xstate/react'
 import confirmationDialogMachine, {
   ConfirmationDialogMachineContext,
   ConfirmationDialogMachineEvent,
-} from 'machines/confirmation-dialog-machine'
-import RemoveMemberConfirmDialog from 'components/team/remove-member-confirm-dialog'
+} from '@/machines/confirmation-dialog-machine'
+import RemoveMemberConfirmDialog from '@/components/team/remove-member-confirm-dialog'
 
 const MemberTable = ({
   accountId,
@@ -22,10 +22,7 @@ const MemberTable = ({
     setMembers,
     memberToRemove: undefined,
   }
-  const [current, send] = useMachine<
-    ConfirmationDialogMachineContext,
-    ConfirmationDialogMachineEvent
-  >(confirmationDialogMachine, {
+  const [current, send] = useMachine(confirmationDialogMachine, {
     context: initialContext,
   })
 
@@ -42,7 +39,7 @@ const MemberTable = ({
         }}
         member={current.context.memberToRemove}
       />
-      <div className="bg-white shadow overflow-hidden sm:rounded-md mt-2">
+      <div className="bg-white border border-gray-200 dark:border-gray-700 overflow-hidden sm:rounded-md">
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
           {members.map((member: any, i: number) => {
             const {

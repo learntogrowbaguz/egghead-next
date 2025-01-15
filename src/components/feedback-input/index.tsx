@@ -1,27 +1,28 @@
 import * as React from 'react'
 import {FunctionComponent} from 'react'
-import axios from 'utils/configured-axios'
+import axios from '@/utils/configured-axios'
 import * as Yup from 'yup'
 import isEmpty from 'lodash/isEmpty'
 import {motion} from 'framer-motion'
 import {useInterval} from 'react-use'
 import {Formik, Form, Field, ErrorMessage} from 'formik'
 import {DialogOverlay, DialogContent} from '@reach/dialog'
-import {track} from 'utils/analytics'
+import analytics, {track} from '@/utils/analytics'
 import {Listbox, Transition} from '@headlessui/react'
 import {CheckIcon, SelectorIcon} from '@heroicons/react/solid'
 
 import Sob from './images/Sob'
 import Hearteyes from './images/Hearteyes'
 import NeutralFace from './images/NeutralFace'
-import useCio from 'hooks/use-cio'
+import useCio from '@/hooks/use-cio'
+import {getAuthorizationHeader} from '@/utils/auth'
 
 type FeedbackCategory = {
   id: number
   category: string
   label: string
   placeholderText: string
-  supportingInformation: React.ReactFragment | string
+  supportingInformation: React.ReactElement | string
   buttonText: string
 }
 
@@ -181,7 +182,7 @@ type FeedbackProps = {
   user: any
 }
 
-const Feedback: FunctionComponent<FeedbackProps> = ({
+const Feedback: FunctionComponent<React.PropsWithChildren<FeedbackProps>> = ({
   className,
   children,
   user,
@@ -218,8 +219,13 @@ const Feedback: FunctionComponent<FeedbackProps> = ({
 
     setState({loading: true, success: false, errorMessage: null})
     actions.setSubmitting(true)
-    axios
-      .post('/api/v1/feedback', {
+    fetch('/api/feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthorizationHeader(),
+      },
+      body: JSON.stringify({
         feedback: {
           url: window.location.toString(),
           site: `egghead-next`,
@@ -228,14 +234,16 @@ const Feedback: FunctionComponent<FeedbackProps> = ({
           user: user,
           emotion: slackEmojiCode,
         },
-      })
+      }),
+    })
       .then(() => {
-        track(`sent feedback`, {
-          category: selectedCategory.category,
-          comment: values.feedback,
-          emotion: slackEmojiCode,
-          url: window.location.toString(),
-        })
+        analytics.events.engagementSentFeedback(
+          selectedCategory.category,
+          values.feedback,
+          slackEmojiCode,
+          window.location.toString(),
+        )
+
         if (subscriber) {
           const learner_score =
             Number(subscriber.attributes?.learner_score) || 0
@@ -267,7 +275,9 @@ const Feedback: FunctionComponent<FeedbackProps> = ({
     return EMOJI_CODES.get(code)
   }
 
-  const Emoji: FunctionComponent<{code: any}> = ({code}) => getEmoji(code)
+  const Emoji: FunctionComponent<React.PropsWithChildren<{code: any}>> = ({
+    code,
+  }) => getEmoji(code)
 
   return (
     <>
@@ -413,7 +423,7 @@ const Feedback: FunctionComponent<FeedbackProps> = ({
                         </div>
                         <ErrorMessage
                           name="feedback"
-                          render={(msg) => (
+                          render={(msg: any) => (
                             <div className="mt-4 flex items-start bg-orange-100 dark:bg-gray-800 rounded">
                               <div className="py-4 px-6 flex items-center text-black dark:text-gray-200">
                                 {msg}

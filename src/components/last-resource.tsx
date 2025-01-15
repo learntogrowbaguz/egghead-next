@@ -1,13 +1,15 @@
-import useLastResource from 'hooks/use-last-resource'
+import useLastResource from '@/hooks/use-last-resource'
 import {isEmpty} from 'lodash'
 import Link from 'next/link'
 import * as React from 'react'
-import {track} from 'utils/analytics'
+import {track} from '@/utils/analytics'
 
-const LastResource: React.FunctionComponent<{
-  className?: string
-  location?: string
-}> = ({children, className, location}) => {
+const LastResource: React.FunctionComponent<
+  React.PropsWithChildren<{
+    className?: string
+    location?: string
+  }>
+> = ({children, className, location}) => {
   const {lastResource, clearResource} = useLastResource()
 
   const trackAndClearResource = (event: string) => {
@@ -23,15 +25,14 @@ const LastResource: React.FunctionComponent<{
   return !isEmpty(lastResource) ? (
     <div>
       {children}{' '}
-      <Link href={lastResource.path}>
-        <a
-          onClick={() => {
-            trackAndClearResource('clicked show last resource')
-          }}
-          className={className}
-        >
-          {lastResource.title}
-        </a>
+      <Link
+        href={lastResource.path}
+        onClick={() => {
+          trackAndClearResource('clicked show last resource')
+        }}
+        className={className}
+      >
+        {lastResource.title}
       </Link>
       <div className="w-100 flex items-center justify-end">
         <button

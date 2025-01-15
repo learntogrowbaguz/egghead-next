@@ -3,8 +3,8 @@ import {GetServerSideProps} from 'next'
 import {getTokenFromCookieHeaders} from '../../../utils/auth'
 import {getGift} from '../../../lib/gifts'
 import Link from 'next/link'
-import Image from 'next/image'
-import axios from 'utils/configured-axios'
+import Image from 'next/legacy/image'
+import axios from '@/utils/configured-axios'
 import {useRouter} from 'next/router'
 import {useViewer} from '../../../context/viewer-context'
 import {PrimaryButton} from '../../../components/buttons'
@@ -48,7 +48,10 @@ export const getServerSideProps: GetServerSideProps = async function ({
 type Gift = {claim_url: string; claimed: boolean; duration_months: number}
 type GiftClaimProps = {error?: {type: string; message: string}; gift?: Gift}
 
-const GiftClaim: React.FC<GiftClaimProps> = ({error, gift}) => {
+const GiftClaim: React.FC<React.PropsWithChildren<GiftClaimProps>> = ({
+  error,
+  gift,
+}) => {
   const router = useRouter()
   const {viewer, refreshUser} = useViewer()
 
@@ -70,11 +73,8 @@ const GiftClaim: React.FC<GiftClaimProps> = ({error, gift}) => {
             <h1>{error.message}</h1>
             {error.type === 'login' ? (
               <p>
-                <Link href="/login">
-                  <a>Click here</a>
-                </Link>{' '}
-                to sign in. Once you are signed in you will need to click your
-                gift claim link again.
+                <Link href="/login">Click here</Link> to sign in. Once you are
+                signed in you will need to click your gift claim link again.
               </p>
             ) : null}
           </>
@@ -95,10 +95,8 @@ const GiftClaim: React.FC<GiftClaimProps> = ({error, gift}) => {
                 <em>
                   <b>on top of your existing membership</b>
                 </em>
-                . They stack. You can claim 10 gift memberships and have PRO
-                access for 10 years. When the gift expires, your existing
-                membership will resume. You will not lose any membership
-                time/money.
+                . When the gift expires, your existing membership will resume.
+                You will not lose any membership time/money.
               </p>
             ) : (
               <p>

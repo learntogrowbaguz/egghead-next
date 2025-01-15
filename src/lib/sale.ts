@@ -1,6 +1,6 @@
-import CourseGrid from 'components/pages/20-days-of-egghead/course-grid'
-import {sanityClient} from 'utils/sanity-client'
-import {CardResource} from 'types'
+import CourseGrid from '@/components/pages/20-days-of-egghead/course-grid'
+import {sanityClient} from '@/utils/sanity-client'
+import {CardResource} from '@/types'
 import groq from 'groq'
 
 const saleOn = process.env.NEXT_PUBLIC_FLASH_SALE
@@ -20,7 +20,7 @@ async function loadHolidayCourses() {
                 'slug': slug.current,
                 image,
                 path,
-                'instructor': collaborators[]->[role == 'instructor'][0]{
+                'instructor': collaborators[@->.role == 'instructor'][0]->{
                   title,
                   'slug': person->slug.current,
                   'name': person->name,

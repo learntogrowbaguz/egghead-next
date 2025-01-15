@@ -1,13 +1,22 @@
 import React, {FunctionComponent} from 'react'
-import {loadHolidayCourses, saleOn} from 'lib/sale'
-import {sanityClient} from 'utils/sanity-client'
-import Home from 'components/pages/home'
+import {loadHolidayCourses, saleOn} from '@/lib/sale'
+import {sanityClient} from '@/utils/sanity-client'
+import Home from '@/components/pages/home'
 import {NextSeo} from 'next-seo'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import groq from 'groq'
+import {z} from 'zod'
+import {result} from 'lodash'
+import {getServerState} from 'react-instantsearch'
+import TheFeed from '@/components/pages/home/the-feed'
+import {renderToString} from 'react-dom/server'
 
-const LearnPage: FunctionComponent<any> = ({data, holidayCourses}) => {
+const LearnPage: FunctionComponent<React.PropsWithChildren<any>> = ({
+  data,
+  holidayCourses,
+  searchServerState,
+}) => {
   const location = 'curated home landing'
   const jumbotron = find(data.sections, {slug: 'jumbotron'})
   const ogImage = get(
@@ -35,6 +44,7 @@ const LearnPage: FunctionComponent<any> = ({data, holidayCourses}) => {
           holidayCourses={holidayCourses}
           jumbotron={jumbotron}
           location={location}
+          searchServerState={searchServerState}
         />
       </div>
     </>
@@ -49,6 +59,7 @@ const homepageQuery = groq`*[_type == 'resource' && slug.current == "curated-hom
       'id': _id,
       title,
       'slug': slug.current,
+      displayComponent,
       image,
       path,
       description,
@@ -60,14 +71,23 @@ const homepageQuery = groq`*[_type == 'resource' && slug.current == "curated-hom
       },
       resources[]->{
         'id': _id,
+        externalId,
         title,
         'name': type,
         'description': summary,
         path,
+        'slug': slug.current,
+        byline,
         image,
-        images,
+        images {
+          label,
+          url,
+        },
+        'tag': softwareLibraries[][0] {
+          'name': library->name,
+         },
         'ogImage': images[label == 'main-og-image'][0].url,
-        'instructor': collaborators[]->[role == 'instructor'][0]{
+        'instructor': collaborators[@->.role == 'instructor'][0]->{
             'name': person->name,
             'image': person->image.url
             },
@@ -75,14 +95,70 @@ const homepageQuery = groq`*[_type == 'resource' && slug.current == "curated-hom
     }
   }`
 
+const Resource = z.object({
+  id: z.string(),
+  externalId: z.number(),
+  title: z.string(),
+  name: z.string(),
+  description: z.string(),
+  path: z.string(),
+  slug: z.string(),
+  byline: z.string(),
+  image: z.union([z.string(), z.object({src: z.string(), alt: z.string()})]),
+  images: z.object({
+    label: z.string(),
+    url: z.string(),
+  }),
+  tag: z.object({
+    name: z.string(),
+  }),
+  ogImage: z.string(),
+  instructor: z.object({
+    name: z.string(),
+    image: z.string(),
+  }),
+})
+export type SanityResourceType = z.infer<typeof Resource>
+
+const Topic = z.object({
+  id: z.string().optional(),
+  title: z.string().optional(),
+  path: z.string().optional(),
+  image: z.string().optional(),
+})
+
+const SanitySection = z.object({
+  id: z.string().optional(),
+  title: z.string(),
+  slug: z.string().optional(),
+  displayComponent: z.string().optional(),
+  image: z.string().optional(),
+  path: z.string().optional(),
+  description: z.string().optional(),
+  topics: z.array(Topic).optional(),
+  resources: z.array(Resource).nullish(),
+})
+export type SanitySectionType = z.infer<typeof SanitySection>
+
+const CuratedHomePageData = z.object({
+  title: z.string(),
+  sections: z.array(SanitySection).nonempty(),
+})
+export type CuratedHomePageDataType = z.infer<typeof CuratedHomePageData>
+
 export async function getStaticProps() {
   const data = await sanityClient.fetch(homepageQuery)
   const holidayCourses = saleOn ? await loadHolidayCourses() : {}
+
+  const searchServerState = await getServerState(<TheFeed />, {
+    renderToString,
+  })
 
   return {
     props: {
       holidayCourses,
       data,
+      searchServerState,
     },
   }
 }

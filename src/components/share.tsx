@@ -11,7 +11,7 @@ type ShareProps = {
   className?: string
 }
 
-const Share: FunctionComponent<ShareProps> = ({
+const Share: FunctionComponent<React.PropsWithChildren<ShareProps>> = ({
   children,
   resource,
   instructor,
@@ -22,7 +22,8 @@ const Share: FunctionComponent<ShareProps> = ({
 }) => {
   return (
     <>
-      <h4 className="text-sm">{children || title}</h4>
+      <span className="text-sm">{children || title}</span>
+      <h2 className="sr-only">Social Share Links</h2>
       <div className={className || 'flex items-center mt-3'}>
         <div className={'flex items-center space-x-2'}>
           <TweetLink resource={resource} instructor={instructor} />
@@ -35,7 +36,7 @@ const Share: FunctionComponent<ShareProps> = ({
   )
 }
 
-const TweetLink: FunctionComponent<ShareProps> = ({
+const TweetLink: FunctionComponent<React.PropsWithChildren<ShareProps>> = ({
   resource,
   instructor,
   className = '',
@@ -66,10 +67,12 @@ const TweetLink: FunctionComponent<ShareProps> = ({
     </a>
   ) : null
 }
-const CopyToClipboard: FunctionComponent<{
-  stringToCopy: string
-  className?: string
-}> = ({stringToCopy = '', className = ''}) => {
+const CopyToClipboard: FunctionComponent<
+  React.PropsWithChildren<{
+    stringToCopy: string
+    className?: string
+  }>
+> = ({stringToCopy = '', className = ''}) => {
   const duration: number = 1000
   const [isCopied, setCopied] = useClipboard(stringToCopy, {
     successDuration: duration,
@@ -93,9 +96,9 @@ const CopyToClipboard: FunctionComponent<{
   )
 }
 
-export const IconLink: FunctionComponent<{className?: string}> = ({
-  className = '',
-}) => (
+export const IconLink: FunctionComponent<
+  React.PropsWithChildren<{className?: string}>
+> = ({className = ''}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -112,9 +115,9 @@ export const IconLink: FunctionComponent<{className?: string}> = ({
   </svg>
 )
 
-export const IconTwitter: FunctionComponent<{className?: string}> = ({
-  className = '',
-}) => (
+export const IconTwitter: FunctionComponent<
+  React.PropsWithChildren<{className?: string}>
+> = ({className = ''}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"

@@ -15,7 +15,7 @@ module.exports = {
     container: {
       center: true,
       padding: {
-        DEFAULT: '0.5rem',
+        DEFAULT: '1rem',
         md: '1.5rem',
       },
     },
@@ -124,15 +124,58 @@ module.exports = {
       lineHeight: {
         tighter: 1.1,
       },
+      animation: {
+        'gradient-x': 'gradient-x 10s ease infinite',
+        'gradient-y': 'gradient-y 10s ease infinite',
+        'gradient-xy': 'gradient-xy 10s ease infinite',
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
+      },
+      keyframes: {
+        'accordion-down': {
+          from: {height: '0'},
+          to: {height: 'var(--radix-accordion-content-height)'},
+        },
+        'accordion-up': {
+          from: {height: 'var(--radix-accordion-content-height)'},
+          to: {height: '0'},
+        },
+        'gradient-y': {
+          '0%, 100%': {
+            'background-size': '400% 400%',
+            'background-position': 'center top',
+          },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'center center',
+          },
+        },
+        'gradient-x': {
+          '0%, 100%': {
+            'background-size': '200% 200%',
+            'background-position': 'left center',
+          },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'right center',
+          },
+        },
+        'gradient-xy': {
+          '0%, 100%': {
+            'background-size': '400% 400%',
+            'background-position': 'left center',
+          },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'right center',
+          },
+        },
+      },
     },
   },
   plugins: [
     containerStylesPlugin,
     require('@tailwindcss/typography'),
     require('@tailwindcss/forms'),
-    require('@tailwindcss/aspect-ratio'),
-    require('@tailwindcss/line-clamp'),
-    require('tailwindcss-autofill'),
-    require('tailwindcss-text-fill'),
   ],
 }

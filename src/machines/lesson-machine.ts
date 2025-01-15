@@ -1,8 +1,9 @@
-import {track} from 'utils/analytics'
+import {track} from '@/utils/analytics'
 import {Machine, assign} from 'xstate'
 import axios from 'axios'
 import {LessonResource} from '../types'
 import {convertTimeWithTitles} from '../utils/time-utils'
+import analytics from '@/utils/analytics'
 
 interface LessonStateSchema {
   states: {
@@ -18,7 +19,7 @@ interface LessonStateSchema {
     joining: {}
     completed: {}
     recommending: {}
-    pitchingCourse: {}
+    offeringSearch: {}
     addingNote: {}
   }
 }
@@ -35,7 +36,7 @@ export type LessonStateEvent =
   | {type: 'QUIZ'}
   | {type: 'COMPLETE'}
   | {type: 'NEXT'}
-  | {type: 'COURSE_PITCH'}
+  | {type: 'OFFER_SEARCH'}
   | {type: 'RATE'}
   | {type: 'LOAD'}
   | {type: 'LOAD'; lesson: any; viewer: any}
@@ -117,7 +118,7 @@ export const lessonMachine = Machine<
         entry: ['sendTelemetry'],
         on: {
           NEXT: 'showingNext',
-          COURSE_PITCH: 'pitchingCourse',
+          OFFER_SEARCH: 'offeringSearch',
           SUBSCRIBE: 'subscribing',
           JOIN: 'joining',
           RATE: 'rating',
@@ -214,7 +215,7 @@ export const lessonMachine = Machine<
           VIEW: 'viewing',
         },
       },
-      pitchingCourse: {
+      offeringSearch: {
         on: {
           LOAD: 'loading',
           VIEW: 'viewing',
@@ -293,10 +294,6 @@ export const lessonMachine = Machine<
 
         if (!verb) return
 
-        track(`${verb} video`, {
-          lesson: context.lesson.slug,
-        })
-
         if (verb === 'completed') {
           context.lesson?.tags?.forEach((tag: any) => {
             axios.post('/api/topic', {
@@ -304,6 +301,7 @@ export const lessonMachine = Machine<
               topic: tag.name,
             })
           })
+          analytics.events.engagementCompletedLesson(context.lesson.slug)
         }
 
         // Axios.post(`/api/progress`, {

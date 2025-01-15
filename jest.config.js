@@ -17,9 +17,11 @@ module.exports = {
   },
   transformIgnorePatterns: [
     '/node_modules/',
+    'node_modules/(?!@mdx-js|(?!deck.gl)|ng-dynamic)',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
   moduleNameMapper: {
+    '^@/(.*)': '<rootDir>/src/$1',
     '^.+\\.module\\.(css|sass|scss)$': 'identity-obj-proxy',
   },
   moduleDirectories: ['node_modules', 'src'],

@@ -1,8 +1,12 @@
 import {NextApiRequest, NextApiResponse} from 'next'
-import {getTokenFromCookieHeaders} from 'utils/parse-server-cookie'
-import getTracer from 'utils/honeycomb-tracer'
-import {setupHttpTracing} from 'utils/tracing-js/dist/src/index'
-import {CIO_IDENTIFIER_KEY} from 'config'
+import {getTokenFromCookieHeaders} from '@/utils/parse-server-cookie'
+import getTracer from '@/utils/honeycomb-tracer'
+import {setupHttpTracing} from '@/utils/tracing-js/dist/src/index'
+import {CIO_IDENTIFIER_KEY} from '@/config'
+import {ENCODED_CUSTOMER_IO_TRACKING_API_CREDENTIALS} from '@/lib/customer-io'
+import {inngest} from '@/inngest/inngest.server'
+import {SEND_SLACK_MESSAGE_EVENT} from '@/inngest/events/send-slack-message'
+import {reportCioApiError} from '@/utils/cio/report-cio-api-error'
 
 const serverCookie = require('cookie')
 const axios = require('axios')
@@ -54,34 +58,34 @@ const cioSubscriber = async (req: NextApiRequest, res: NextApiResponse) => {
       if (!cioId) {
         const eggheadUser = await fetchEggheadUser(eggheadToken)
 
-        if (!eggheadUser || eggheadUser.opted_out || !eggheadUser.contact_id)
-          throw new Error('cannot identify user')
+        if (!eggheadUser || eggheadUser.opted_out || !eggheadUser.contact_id) {
+        } else {
+          const headers = {
+            'content-type': 'application/json',
+            Authorization: `Basic ${ENCODED_CUSTOMER_IO_TRACKING_API_CREDENTIALS}`,
+          }
 
-        const headers = {
-          'content-type': 'application/json',
-          Authorization: `Basic ${process.env.CUSTOMER_IO_TRACK_API_BASIC}`,
-        }
-
-        await axios.put(
-          `https://track.customer.io/api/v1/customers/${eggheadUser.contact_id}`,
-          {
-            email: eggheadUser.email,
-            pro: eggheadUser.is_pro,
-            created_at: eggheadUser.created_at,
-          },
-          {headers},
-        )
-
-        subscriber = await cioAxios
-          .get(`/customers/${eggheadUser.contact_id}/attributes`, {
-            headers: {
-              Authorization: `Bearer ${process.env.CUSTOMER_IO_APPLICATION_API_KEY}`,
+          await axios.put(
+            `https://track.customer.io/api/v1/customers/${eggheadUser.contact_id}`,
+            {
+              email: eggheadUser.email,
+              pro: eggheadUser.is_pro,
+              created_at: eggheadUser.created_at,
             },
-          })
-          .then(({data}: {data: any}) => data.customer)
-          .catch((error: any) => {
-            console.error(error)
-          })
+            {headers},
+          )
+
+          subscriber = await cioAxios
+            .get(`/customers/${eggheadUser.contact_id}/attributes`, {
+              headers: {
+                Authorization: `Bearer ${process.env.CUSTOMER_IO_APPLICATION_API_KEY}`,
+              },
+            })
+            .then(({data}: {data: any}) => data.customer)
+            .catch((error: any) => {
+              console.error(error)
+            })
+        }
       } else {
         subscriber = await cioAxios
           .get(`/customers/${cioId}/attributes`, {
@@ -109,11 +113,16 @@ const cioSubscriber = async (req: NextApiRequest, res: NextApiResponse) => {
         // res.setHeader('Cache-Control', 'max-age=1, stale-while-revalidate')
         res.status(200).json(subscriber)
       } else {
-        console.error('no subscriber was loaded')
+        console.debug('no subscriber was loaded')
         res.status(200).end()
       }
-    } catch (error) {
-      console.error(error.message)
+    } catch (error: any) {
+      if (process.env.NODE_ENV === 'development') return
+      console.error(error)
+      if (error.response.status !== 404) {
+        await reportCioApiError(error)
+      }
+
       res.status(200).end()
     }
   } else {

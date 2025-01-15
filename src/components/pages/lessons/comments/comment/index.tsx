@@ -1,29 +1,25 @@
 import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
 import friendlyTime from 'friendly-time'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 
 type CommentProps = {
   comment: string
   state: string
-  createdAt: any
+  createdAt?: any
   isCommentableOwner: boolean
   user: {
     avatar_url: string
     full_name: string
-    instructor: {
+    instructor?: {
       first_name: string
     }
   }
 }
 
-const Comment: React.FunctionComponent<CommentProps> = ({
-  comment,
-  state,
-  createdAt,
-  isCommentableOwner,
-  user,
-}: CommentProps) => {
+const Comment: React.FunctionComponent<
+  React.PropsWithChildren<CommentProps>
+> = ({comment, state, createdAt, isCommentableOwner, user}: CommentProps) => {
   if (state === 'hidden') {
     return null
   }
@@ -60,9 +56,11 @@ const Comment: React.FunctionComponent<CommentProps> = ({
               </span>
             )}
           </div>
-          <div className="sm:ml-2 whitespace-nowrap text-xs text-gray-400 dark:text-gray-500">
-            ~ {friendlyTime(new Date(createdAt))}
-          </div>
+          {createdAt && (
+            <div className="sm:ml-2 whitespace-nowrap text-xs text-gray-400 dark:text-gray-500">
+              ~ {friendlyTime(new Date(createdAt))}
+            </div>
+          )}
         </div>
         <style jsx>{`
           & > :first-child {

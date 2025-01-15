@@ -1,14 +1,14 @@
 import * as React from 'react'
 import {FunctionComponent} from 'react'
 import {GetServerSideProps} from 'next'
-import {loadTag} from 'lib/tags'
+import {loadTag} from '@/lib/tags'
 import Markdown from 'react-markdown'
 
 type TagProps = {
   tag: any
 }
 
-const Tag: FunctionComponent<TagProps> = ({tag}) => {
+const Tag: FunctionComponent<React.PropsWithChildren<TagProps>> = ({tag}) => {
   return (
     <div>
       <img alt="" src={tag.image_480_url} />

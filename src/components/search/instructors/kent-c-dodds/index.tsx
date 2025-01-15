@@ -1,13 +1,13 @@
 import groq from 'groq'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import {get} from 'lodash'
-import ExternalTrackedLink from 'components/external-tracked-link'
+import ExternalTrackedLink from '@/components/external-tracked-link'
 
 import SearchInstructorEssential from '../instructor-essential'
-import CtaCard from 'components/search/components/cta-card'
-import {VerticalResourceCollectionCard} from 'components/card/vertical-resource-collection-card'
-import {VerticalResourceCard} from 'components/card/verticle-resource-card'
-import {HorizontalResourceCard} from 'components/card/horizontal-resource-card'
+import CtaCard from '@/components/search/components/cta-card'
+import {VerticalResourceCollectionCard} from '@/components/card/vertical-resource-collection-card'
+import {VerticalResourceCard} from '@/components/card/verticle-resource-card'
+import {HorizontalResourceCard} from '@/components/card/horizontal-resource-card'
 
 const SearchKentCDodds = ({instructor}: any) => {
   const {
@@ -125,7 +125,7 @@ export const kentCDoddsQuery = groq`
        byline,
        image,
        'background': images[label == 'feature-card-background'][0].url,
-       'instructor': collaborators[]->[role == 'instructor'][0]{
+       'instructor': collaborators[@->.role == 'instructor'][0]->{
          'name': person->.name
        },
      }
@@ -153,7 +153,7 @@ export const kentCDoddsQuery = groq`
            byline,
            image,
            'background': images[label == 'feature-card-background'][0].url,
-           'instructor': collaborators[]->[role == 'instructor'][0]{
+           'instructor': collaborators[@->.role == 'instructor'][0]->{
              'name': person->.name
            }
          },

@@ -1,13 +1,15 @@
 import * as React from 'react'
 import {GetServerSideProps} from 'next'
-import mdxComponents from 'components/mdx'
-import {sanityClient} from 'utils/sanity-client'
+import mdxComponents from '@/components/mdx'
+import {sanityClient} from '@/utils/sanity-client'
 import groq from 'groq'
 import {serialize} from 'next-mdx-remote/serialize'
 import {MDXRemote} from 'next-mdx-remote'
-import {withProse} from '../../utils/remark/with-prose'
 
-const OnlinePresenceArticle: React.FC<any> = ({source, title}) => {
+const OnlinePresenceArticle: React.FC<React.PropsWithChildren<any>> = ({
+  source,
+  title,
+}) => {
   return (
     <article className="mx-auto max-w-screen-md lg:mt-14 md:mt-8 mt-3">
       <header>
@@ -44,7 +46,6 @@ export const getServerSideProps: GetServerSideProps = async function ({
       const source = await serialize(resource.article, {
         mdxOptions: {
           remarkPlugins: [
-            withProse,
             require(`remark-slug`),
             require(`remark-footnotes`),
             require(`remark-code-titles`),
@@ -57,7 +58,7 @@ export const getServerSideProps: GetServerSideProps = async function ({
         props: {source, title: resource.title},
       }
     } catch (e) {
-      console.error(e.message)
+      console.error(e)
       res.statusCode = 404
       res.end()
       return {props: {}}
